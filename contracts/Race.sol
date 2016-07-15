@@ -13,8 +13,8 @@
 // ********************************** TO DO *********************************************** 
 //
 // + Multiple racers . . . prizes by place.
-// + Handle edge case where there are no finishers. Allow refunds.
-// + Address mechanics of starting - checking that everyone is ready & there. Signalling this.
+// + Handle edge case where there are no finishers == refunds. (Timed?)
+// + Address mechanics of starting - checking that everyone is ready & there. Signalling this from endpoint.
 // + Write: broadcasting the registration event to the endpoints. This contract needs to be able
 //   to fire an event from pre-deployed 'notification' contracts for each endpoint it hopes to
 //   interact with. 
@@ -37,13 +37,13 @@ contract Race {
 
     }
 
-    // State
+    // Contract states
     bool public openContract;    // Set to true while racers may join contract. 
     uint64 public startTime;     // Time when race began. 
-    uint8 public endState;       // Which step to end contract on.
+    uint8 public endState;       // Which step to end race on.
     address[2] public stateMap;  // Which nodes expected at which steps. e.g stateMap[2] = node_at_my_house
     
-    // Racers in this race
+    // Data structures for Racers in this race
     mapping (address => Racer) public racers; // Racer data
     address[] public racerList;               // Addr list for iterative access to the racers mapping
     

@@ -1,8 +1,9 @@
 "use strict"
 
-// Note: Modifier correctness is being tested in race_modifiers.js. Modifier interactions
-// at the function level are tested here. FWIW they're all currently independent and do not alter
-// any state variables they share.
+// Note: Modifier correctness is the modifiers section (below). Modifier interactions
+// at the function level are tested in the methods section. 
+// (FWIW they're all currently independent and do not alter any state variables they share, so
+// tests are a little wtf.)
 
 const chai = require('chai')
 

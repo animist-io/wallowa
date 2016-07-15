@@ -1,5 +1,8 @@
-// This file constructs solidity wrapper tests for the modifier fn's in Race.sol
-// & implements some useful setters for unit tests. Extends race.
+// In lieu of solidity syntax highlighting on GitHub:
+// vim: syntax=javascript
+
+// This file constructs solidity wrappers for the internal & modifier fn's in Race.sol
+// Also implements some useful setters for unit tests. Extends race.
 import 'Race.sol';
 
 contract Race_test is Race {
@@ -145,6 +148,4 @@ contract Race_test is Race {
     
 
 }
-// In lieu of solidity syntax highlighting on GitHub, this 
-// JS modeline makes the contract a little more readable there. 
-// vim: syntax=javascript
+
