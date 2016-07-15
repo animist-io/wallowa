@@ -42,6 +42,8 @@ contract('Race', function(accounts) {
         // Wipe everything used
         Promise.all([
             race.setContractOpen(true, {from: node}),
+            race.setStateMap(node, 0, {from: node}),
+            race.setStateMap(node, 1, {from: node}),
             race.setContractEndState(endState, {from: node}), 
             race.setClientState(racerA, 0, {from: node}),
             race.setClientState(racerB, 0, {from: node}),

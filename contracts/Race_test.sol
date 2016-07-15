@@ -7,7 +7,7 @@ import 'Race.sol';
 
 contract Race_test is Race {
 
-    // UNIT TESTS ASSUME THESE VALUES. CHANGE AT YOUR PERIL. 
+    // Unit tests currently over write all the values.  
     function Race_test(){
         var _nodeAddr = address(0x579fadbb36a7b7284ef4e50bbc83f3f294e9a8ec);
 
@@ -21,6 +21,10 @@ contract Race_test is Race {
     // -------------------  SETTERS ----------------------
     function setContractOpen(bool val){
         openContract = val;
+    }
+
+    function setStateMap(address node, uint i){
+        stateMap[i] = node;
     }
 
     function setContractEndState(uint8 state){
