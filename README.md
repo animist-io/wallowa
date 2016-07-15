@@ -1,14 +1,9 @@
 # wallowa
-**Warning: Under construction and not usable. Draft copy.**
+(**Warning: Under construction. Not usable. Draft copy.**_
 
 This repo will house templates for / examples of Solidity code that targets Animist IoT endpoints. Initial work is being done on a simple contract that allows contestants to participate in a wagered race from one endpoint to another.
 
-Goals: 
-
-+ To provide a variety of animist Solidity examples that have good continuous integration features (e.g tests and coverage reports running on Travis CI,  and coherent, navigable documentation). 
-+ To be a resource that lets Animist app developers adapt well-developed code & patterns to achieve their own ends. Or very similar ends. 
-
-Testing requires installation of [truffle](https://github.com/ConsenSys/truffle) and [test-rpc](https://github.com/ethereumjs/testrpc).
+## Installation
 
 ```
 $ npm install -g truffle
@@ -21,8 +16,10 @@ To run test-rpc with 5 accounts that are preserved between sessions
 $ ./rpc.sh
 ```
 
-## Overview of Race.sol:  
+# Race.sol 
+Status: [![Build Status](https://travis-ci.org/animist-io/wallowa.svg?branch=master)](https://travis-ci.org/animist-io/wallowa)
 
+## Overview:
 **The following is a draft. 'Race' is incomplete.**
 
 In this contract, contestants commit stakes to a race they'll participate in, paying an Animist node to authenticate their presence at specified start, finish and through points. If implemented in a mobile app the solidity file would serve as a template whose details are filled out, compiled and deployed on a race by race basis. 
@@ -54,4 +51,7 @@ After each step the contract checks to see if the racer has finished. If a racer
 + Discuss [contract oriented programming](https://medium.com/@gavofyork/condition-orientated-programming-969f6ba0161a#.vh880g6mw)
 + Iterate through these [security issues / best practices](https://github.com/ConsenSys/smart-contract-best-practices) and talk about how contract addresses them.
 
+## Repo Goals: 
 
++ To provide a variety of animist Solidity examples that have good continuous integration features (e.g tests and coverage reports running on Travis CI,  and coherent, navigable documentation). 
++ To be a resource that lets Animist app developers adapt well-developed code & patterns to achieve their own ends. Or very similar ends. 
