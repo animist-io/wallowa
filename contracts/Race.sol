@@ -56,6 +56,9 @@ contract Race {
     // -------------------------------  Modifiers -----------------------------------------
     // ------------------------------------------------------------------------------------
     
+    // *** Question ***: Should these just return instead of throwing? Most are errors 
+    // and it would be good if they printed red. But . . . some might not be. nodeCanVerify for
+    // example. Gas destruction vs. basic reporting is the issue here. 
 
     // --------------- (Public: Nodes) ----------------------
     
@@ -272,7 +275,8 @@ contract Race {
     }
 
     // Iterates through the statemap broadcasting a registration event 
-    //  the caller's commitment to this race contract.
+    //  the caller's commitment to this race contract. 
+    // ** THIS IS A STUB: SEE TODO above - broadcast registration  **
     function broadcastCommit() internal {
 
         for (var i = 0; i < stateMap.length; i++){

@@ -12,7 +12,7 @@ Testing requires installation of [truffle](https://github.com/ConsenSys/truffle)
 
 ```
 $ npm install -g truffle
-$ npm install -g test-rpc
+$ npm install -g ethereumjs-testrpc
 ```
 
 To run test-rpc with 5 accounts that are preserved between sessions
