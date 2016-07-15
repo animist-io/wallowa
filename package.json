@@ -1,0 +1,28 @@
+{
+  "name": "solidity",
+  "version": "1.0.0",
+  "description": "Experiments with Truffle.js",
+  "main": "truffle.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cgewecke/truffle-testing.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cgewecke/truffle-testing/issues"
+  },
+  "homepage": "https://github.com/cgewecke/truffle-testing#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-as-promised": "^5.3.0",
+    "chai-bignumber": "^2.0.0",
+    "chai-spies": "^0.7.1"
+  }
+}
