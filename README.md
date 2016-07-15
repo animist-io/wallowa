@@ -1,7 +1,7 @@
 # wallowa
 **Warning: Under construction and not usable. Draft copy.**
 
-This repo will house templates for / examples of contracts that can processed by Animist IoT endpoints. Initial work is being done on a simple contract that allows contestants to participate in a wagered race from one endpoint to another.
+This repo will house templates for / examples of Solidity code that targets Animist IoT endpoints. Initial work is being done on a simple contract that allows contestants to participate in a wagered race from one endpoint to another.
 
 Goals: 
 
@@ -23,7 +23,7 @@ $ ./rpc.sh
 
 ## Overview of Race.sol:  
 
-**The following is a draft. 'Race' is an incomplete contract.**
+**The following is a draft. 'Race' is incomplete.**
 
 In this contract, contestants commit stakes to a race they'll participate in, paying an Animist node to authenticate their presence at specified start, finish and through points. If implemented in a mobile app the solidity file would serve as a template whose details are filled out, compiled and deployed on a race by race basis. 
 
