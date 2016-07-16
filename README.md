@@ -1,7 +1,7 @@
 # wallowa
 **(Warning: Draft. Under construction. Unusable.)**
 
-This repo will house templates for / examples of Solidity code that targets Animist IoT endpoints. Initial work is being done on a simple contract that allows contestants to participate in a wagered race from one endpoint to another.
+This repo will house Solidity templates that target Animist IoT endpoints. Initial work is being done on a simple contract that allows contestants to participate in a wagered race from one endpoint to another.
 
 ## Installation
 
@@ -51,5 +51,6 @@ After each step the contract checks to see if the racer has finished. If a racer
 
 ## Repo Goals: 
 
-+ To provide a variety of animist Solidity examples that have good continuous integration features (e.g tests running on Travis CI and coherent, navigable documentation). 
-+ To be a resource that lets Animist app developers adapt well-developed code & patterns to achieve their own ends. Or very similar ends. 
++ To provide examples of contracts using the animist API.
++ To provide Solidity code that has some continuous integration features (e.g tests running on Travis CI and coherent, navigable documentation). 
++ To be a resource that lets you quickly adapt simple code & patterns to achieve your own ends.  
