@@ -20,7 +20,7 @@ $ ./bin/rpc.sh
 
 **Draft. Incomplete (see issues).**
 
-In this contract, contestants commit stakes to a race and pay an Animist node to authenticate their presence at specified start, finish and through points. If implemented in a mobile app the solidity file would serve as a template whose details are filled out, compiled and deployed on a race by race basis. 
+Race.sol allows contestants commit stakes to a race and pay an Animist IoT node to authenticate their presence at specified start, finish and through points. If implemented in a mobile app the solidity file would serve as a template whose details are filled out, compiled and deployed on a race by race basis. 
 
 (See /WIP/ProvidedRace.sol for an example of a race where a third party - an app producer/provider - manages transactions on behalf of racers)
 
