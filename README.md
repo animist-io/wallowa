@@ -13,7 +13,7 @@ $ npm install -g ethereumjs-testrpc
 To run test-rpc with 5 accounts that are preserved between sessions
 
 ```
-$ ./rpc.sh
+$ ./bin/rpc.sh
 ```
 
 # Race.sol    [![Build Status](https://travis-ci.org/animist-io/wallowa.svg?branch=master)](https://travis-ci.org/animist-io/wallowa)
@@ -22,7 +22,7 @@ $ ./rpc.sh
 
 In this contract, contestants commit stakes to a race and pay an Animist node to authenticate their presence at specified start, finish and through points. If implemented in a mobile app the solidity file would serve as a template whose details are filled out, compiled and deployed on a race by race basis. 
 
-(See ProvidedRace.sol for an example of a race where a third party - an app producer/provider - manages transactions on behalf of racers)
+(See /WIP/ProvidedRace.sol for an example of a race where a third party - an app producer/provider - manages transactions on behalf of racers)
 
 ## Description 
 
@@ -51,5 +51,5 @@ After each step the contract checks to see if the racer has finished. If a racer
 
 ## Repo Goals: 
 
-+ To provide a variety of animist Solidity examples that have good continuous integration features (e.g tests and coverage reports running on Travis CI,  and coherent, navigable documentation). 
++ To provide a variety of animist Solidity examples that have good continuous integration features (e.g tests running on Travis CI and coherent, navigable documentation). 
 + To be a resource that lets Animist app developers adapt well-developed code & patterns to achieve their own ends. Or very similar ends. 

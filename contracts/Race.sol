@@ -3,23 +3,14 @@
 
 // ---------------------------------- OVERVIEW -------------------------------------------
 //
-// This is a sample contract for a race in which contestants commit stakes and execute 
-// transactions on their own account, paying an Animist node to authenticate their presence
-// at pre-defined locations in a pre-defined sequence. If implemented in a mobile app it would
-// serve as a template that is filled out, compiled and deployed on a race by race basis. 
+// This is a sample contract for a race in which contestants commit stakes to a race,
+// paying Animist nodes to authenticate their presence at pre-defined locations in set sequence. 
+// If implemented in a mobile app it would serve as a template that is filled out, compiled and 
+// deployed on a race by race basis. 
 
 // (See the README at: animist-io/wallowa for a more detailed description) 
 
-// ********************************** TO DO *********************************************** 
-//
-// + Multiple racers . . . prizes by place.
-// + Handle edge case where there are no finishers == refunds. (Timed?)
-// + Address mechanics of starting - checking that everyone is ready & there. Signalling this from endpoint.
-// + Write: broadcasting the registration event to the endpoints. This contract needs to be able
-//   to fire an event from pre-deployed 'notification' contracts for each endpoint it hopes to
-//   interact with. 
-// + Write: contract instantiation logic. How is wager funded? How is the endpoint funded?
-// + Write: payout logic . . . .
+// *** UNFINISHED: https://github.com/animist-io/wallowa/issues *** 
 
 contract Race {
 
@@ -56,9 +47,10 @@ contract Race {
     // -------------------------------  Modifiers -----------------------------------------
     // ------------------------------------------------------------------------------------
     
-    // *** Question ***: Should these just return instead of throwing? Most are errors 
+    // *** Question ***: Should these return instead of throwing? Most are errors 
     // and it would be good if they printed red. But . . . some might not be. nodeCanVerify for
-    // example. Gas destruction vs. basic reporting is the issue here. 
+    // example. A racer could legitimately encounter a node thats not specified in the contract.
+    // Gas destruction vs. basic reporting is the issue here. 
 
     // --------------- (Public: Nodes) ----------------------
     
@@ -70,7 +62,9 @@ contract Race {
         _
     }
 
-    // Is client registered as a racer?
+    // Is client registered as a racer? 
+    //(Functionally redundant in combination w/ other client or sender checks. 
+    // Makes membership req. explicit for the contract reader. ) 
     modifier clientIsRacer(address client) {
         if (racers[client].account == address(0)) throw;
         _
@@ -82,7 +76,7 @@ contract Race {
         _
     }
 
-    // --------- (Public: Authority is Self ) ------------------
+    // --------- (Public: Racer ) ------------------
 
     // Is the caller registered as a racer ?
     modifier senderIsRacer() {
@@ -129,7 +123,7 @@ contract Race {
         _
     }
 
-    // --------------- ( Misc ) --------------------------
+    // --------------- ( Public: General ) --------------------------
     // Is contract open for new contestants to register ?
     modifier contractIsOpen {
         if( openContract != true ) throw;
@@ -137,7 +131,8 @@ contract Race {
     }
 
     // ----------------------------- Test Constructor   --------------------------------
-    // This is the main part that needs to be handled with templating in the app. 
+    
+    // This is the section needs to be templated per race. 
     function Race(){
 
         var _nodeAddr = address(0x579fadbb36a7b7284ef4e50bbc83f3f294e9a8ec);
@@ -264,7 +259,7 @@ contract Race {
             var other_time = racers[racerList[i]].timeVerified;
             var other_endBlock = racers[racerList[i]].endBlock;
             
-            // Case: Other finished and racer's verified time is later than other's
+            // Case: Other finished AND racer's verified time is later than other's
             if ( (other_endBlock != uint(0)) && (self_time > other_time) ){
                 return false;
             }

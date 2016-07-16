@@ -1,13 +1,14 @@
 "use strict"
 
-// Note: Modifier correctness is the modifiers section (below). Modifier interactions
-// at the function level are tested in the methods section. 
+// Note: Modifier correctness is tested in the modifiers section (below). 
+//       Modifier interactions at the function level are tested in the methods section. 
+//
 // (FWIW they're all currently independent and do not alter any state variables they share, so
 // tests are a little wtf.)
 
-const chai = require('chai')
+const chai = require('chai');
 
-//chai.use(require('../bindings.js'))
+//chai.use(require('../resources/bindings.js'))
 //chai.use(require('chai-bignumber')(web3.toBigNumber(0).constructor))
 chai.use(require('chai-as-promised'))
 chai.use(require('chai-spies'));
@@ -308,7 +309,6 @@ contract('Race', function(accounts) {
 
             it('should return true if others finished and queried racer finished earliest', (done)=>{
 
-                // Set up racerA to finish later than racerB
                 let now = Date.now();
                 let win = now - 10;
                 let endBlock = web3.eth.blockNumber;
@@ -327,7 +327,6 @@ contract('Race', function(accounts) {
 
             it('should return false if others finished earlier than queried racer', (done) =>{
 
-                // Set up racerA to finish later than racerB
                 let now = Date.now();
                 let win = now - 10;
                 let endBlock = web3.eth.blockNumber;
@@ -349,8 +348,6 @@ contract('Race', function(accounts) {
             it('should fire a registration event about racer for each node listed in the stateMap', (done)=>{
                 let now = web3.eth.blockNumber;
             
-                // broadcastCommit is getting fired in the before fn of these tests causing super weird behavior
-                // when additional suites about race run.
                 // Default stateMap has length 2, 'node' listed twice.               
                 race.LogRegistration(null, {fromBlock: now, toBlock: now}, (err, res) => {
                     if (res.logIndex == 0 ) {
