@@ -10,7 +10,7 @@ const chai = require('chai');
 
 //chai.use(require('../resources/bindings.js'))
 //chai.use(require('chai-bignumber')(web3.toBigNumber(0).constructor))
-chai.use(require('chai-as-promised'))
+chai.use(require('chai-as-promised'));
 chai.use(require('chai-spies'));
 chai.should();
 
@@ -68,9 +68,7 @@ contract('Race', function(accounts) {
 
     describe('Methods', ()=>{
 
-
         describe('verify(address client, uint64 time)', () => {
-
             it('should set racers verifier field to the address of authenticating node', (done) =>{
                 race.verify(racerA, 12345, {from: node}).then(() => {
                     race.getVerifier(racerA, {from: node}).should.eventually.equal(node).notify(done);

@@ -3,7 +3,9 @@
 
 // This file constructs solidity wrappers for the internal & modifier fn's in Race.sol
 // Also implements some useful setters for unit tests. Extends race.
+
 import 'Race.sol';
+
 
 contract Race_test is Race {
 

@@ -10,8 +10,9 @@ module.exports = {
     "images/": "images/"
   },
   deploy: [
+    "AnimistEvent",
     "Race",
-    "Race_test"
+    "Race_test",
   ],
   rpc: {
     host: "localhost",

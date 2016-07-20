@@ -10,7 +10,6 @@
 
 // (See the README at: animist-io/wallowa for a more detailed description) 
 
-// *** UNFINISHED: https://github.com/animist-io/wallowa/issues *** 
 
 contract Race {
 
