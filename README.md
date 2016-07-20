@@ -6,7 +6,7 @@ This repo will house Solidity templates that target Animist IoT endpoints. Initi
 ## Installation
 
 ```
-$ npm install -g truffle
+$ npm install -g truffle@1.0.3
 $ npm install -g ethereumjs-testrpc
 ```
 
@@ -22,7 +22,7 @@ $ ./bin/rpc.sh
 
 Race.sol allows contestants commit stakes to a race and pay an Animist IoT node to authenticate their presence at specified start, finish and through points. If implemented in a mobile app the solidity file would serve as a template whose details are filled out, compiled and deployed on a race by race basis. 
 
-(See /WIP/ProvidedRace.sol for an example of a race where a third party - an app producer/provider - manages transactions on behalf of racers)
+(See /resources/ProvidedRace.sol for an example of a race where a third party - an app producer/provider - manages transactions on behalf of racers)
 
 ## Description 
 
