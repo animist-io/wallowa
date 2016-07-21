@@ -1,6 +1,6 @@
 .DS_Store
 node_modules
-coverage
+migrations
 environments/development
 environments/production
 environments/staging

@@ -21,14 +21,13 @@ contract AnimistEvent {
     // LogRegistration(node, account, contract)
     // node: the account address of the node targeted by this event
     // account: the user account the node will expect to interact with.
-    // contractAddress: the address of the contract node will invoke Animist API functions on.*/
+    // contract: the address of the contract node will invoke Animist API functions on.*/
     event LogRegistration( address indexed node, address indexed account, address indexed contractAddress);
     
-    // LogBroadcast(node, account, contract)
+    // LogBroadcast(node, channel, duration)
     // node: the account address of the node targeted by this event
     // channel: not sure. (a characteristic string though, right?)
-    // value: don't know.
-    // contractAddress: the address of the contract node will invoke Animist API functions on.*/
+    // duration: don't know. Default? 
     event LogBroadcast( address indexed node, uint indexed channel, uint indexed value);
 
 

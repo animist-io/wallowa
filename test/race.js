@@ -12,26 +12,28 @@ const chai = require('chai');
 //chai.use(require('chai-bignumber')(web3.toBigNumber(0).constructor))
 chai.use(require('chai-as-promised'));
 chai.use(require('chai-spies'));
-chai.should();
+var should = chai.should();
+
 
 contract('Race', function(accounts) {
   
-    let race;
-    let endState;
-    let node = accounts[0];
-    let racerA = accounts[1];
-    let racerB = accounts[2];
-    let utils = web3._extend.utils;
+    let race, endState, eventContract, node, racerA, racerB, utils;
+
+    node = accounts[0];
+    racerA = accounts[1];
+    racerB = accounts[2];
+    utils = web3._extend.utils;
 
     // Commit racerA & racerB to race. Get endState.
     before((done)=>{
         race = Race_test.deployed();
+        eventContract = AnimistEvent.deployed();
+
         Promise.all([
             race.commitSelf({from: racerA}),
             race.commitSelf({from: racerB}),
             race.endState.call(node),
-            race.getStateMap({from: node})
-        
+
         ]).then((results) => {
             endState = parseInt(results[2]);
             done();
@@ -45,6 +47,8 @@ contract('Race', function(accounts) {
             race.setContractOpen(true, {from: node}),
             race.setStateMap(node, 0, {from: node}),
             race.setStateMap(node, 1, {from: node}),
+            race.setEventContract( eventContract.address, 0, {from: node}),
+            race.setEventContract( eventContract.address, 1, {from: node}),
             race.setContractEndState(endState, {from: node}), 
             race.setClientState(racerA, 0, {from: node}),
             race.setClientState(racerB, 0, {from: node}),
@@ -97,7 +101,7 @@ contract('Race', function(accounts) {
             // where: nodeCanVerifyPasses, clientCanStep passes, clientIsRacer fails
             it('should throw if the client has not committed to the race', (done) => {
                 let bad_racer = accounts[4];
-                race.verify(bad_racer, 12345, {from: node}).should.eventually.be.rejected.notify(done);        
+                race.verify(bad_racer, 12345, {from: node}).should.eventually.be.rejected.notify(done);   
             });
 
             // where: nodeCanVerifyPasses, clientIsRacerPasses, racerCanStep fails
@@ -347,9 +351,10 @@ contract('Race', function(accounts) {
                 let now = web3.eth.blockNumber;
             
                 // Default stateMap has length 2, 'node' listed twice.               
-                race.LogRegistration(null, {fromBlock: now, toBlock: now}, (err, res) => {
+                eventContract.LogRegistration(null, {fromBlock: now, toBlock: now}, (err, res) => {
+                    
                     if (res.logIndex == 0 ) {
-                        res.args.racer.should.equal(racerA);
+                        res.args.account.should.equal(racerA);
                         res.args.node.should.equal(node);
                         res.args.contractAddress.should.equal(race.address);
                         done();
@@ -367,7 +372,6 @@ contract('Race', function(accounts) {
     // ------------------------------------------------------------------------------------
 
     describe('Modifiers', ()=>{
-
 
         describe('nodeCanVerify', () => {
 

@@ -4,6 +4,7 @@
 // This file constructs solidity wrappers for the internal & modifier fn's in Race.sol
 // Also implements some useful setters for unit tests. Extends race.
 
+import 'AnimistEvent.sol';
 import 'Race.sol';
 
 
@@ -11,13 +12,13 @@ contract Race_test is Race {
 
     // Unit tests currently over write all the values.  
     function Race_test(){
-        var _nodeAddr = address(0x579fadbb36a7b7284ef4e50bbc83f3f294e9a8ec);
+        var nodeAddr = address(0x579fadbb36a7b7284ef4e50bbc83f3f294e9a8ec);
 
         endState = 1;
         openContract = true;
 
-        stateMap[0] = _nodeAddr;
-        stateMap[1] = _nodeAddr;
+        stateMap[0].node = nodeAddr;
+        stateMap[1].node = nodeAddr;
     }
 
     // -------------------  SETTERS ----------------------
@@ -26,11 +27,15 @@ contract Race_test is Race {
     }
 
     function setStateMap(address node, uint i){
-        stateMap[i] = node;
+        stateMap[i].node = node;
     }
 
     function setContractEndState(uint8 state){
         endState = state;
+    }
+
+    function setEventContract( address contractAddress, uint i ){
+        stateMap[i].eventContract = contractAddress;
     }
 
     function setClientState(address client, uint8 state){

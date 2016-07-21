@@ -10,6 +10,7 @@
 
 // (See the README at: animist-io/wallowa for a more detailed description) 
 
+import 'AnimistEvent.sol';
 
 contract Race {
 
@@ -27,20 +28,20 @@ contract Race {
 
     }
 
+    struct Node {
+        address node;               // The nodes personal account. Send money to it. 
+        address eventContract;     // Address of a deployed event contract the node filters for.
+    }
+
     // Contract states
-    bool public openContract;    // Set to true while racers may join contract. 
-    uint64 public startTime;     // Time when race began. 
-    uint8 public endState;       // Which step to end race on.
-    address[2] public stateMap;  // Which nodes expected at which steps. e.g stateMap[2] = node_at_my_house
+    bool public openContract;       // Set to true while racers may join contract. 
+    uint64 public startTime;        // Time when race began. 
+    uint8 public endState;          // Which step to end race on.
+    Node[2] public stateMap;        // Which nodes expected at which steps. e.g stateMap[2] = node_at_my_house
     
     // Data structures for Racers in this race
     mapping (address => Racer) public racers; // Racer data
     address[] public racerList;               // Addr list for iterative access to the racers mapping
-    
-
-    // Says this contract is about 'racer' and 'node'. Broadcast for each unique node-racer pair during
-    // commit. ( Nodes listen for any events that reference them and store them locally. )
-    event LogRegistration( address indexed node, address indexed racer, address indexed contractAddress);
     
     // ------------------------------------------------------------------------------------
     // -------------------------------  Modifiers -----------------------------------------
@@ -49,7 +50,7 @@ contract Race {
     // *** Question ***: Should these return instead of throwing? Most are errors 
     // and it would be good if they printed red. But . . . some might not be. nodeCanVerify for
     // example. A racer could legitimately encounter a node thats not specified in the contract.
-    // Gas destruction vs. basic reporting is the issue here. 
+    // Gas destruction vs. basic reporting issue. 
 
     // --------------- (Public: Nodes) ----------------------
     
@@ -57,7 +58,7 @@ contract Race {
     modifier nodeCanVerify(address client) {
     
         var next = racers[client].state + 1;
-        if (msg.sender != stateMap[next]) throw;
+        if (msg.sender != stateMap[next].node) throw;
         _
     }
 
@@ -98,7 +99,7 @@ contract Race {
     // Has caller's presence been verified by the required node?
     modifier senderIsVerified {
         var next = racers[msg.sender].state + 1; 
-        if ( racers[msg.sender].verifier != stateMap[next]) throw;
+        if ( racers[msg.sender].verifier != stateMap[next].node) throw;
         _
     }
 
@@ -131,16 +132,17 @@ contract Race {
 
     // ----------------------------- Test Constructor   --------------------------------
     
-    // This is the section needs to be templated per race. 
+    // Stub: This is the section needs to be templated per race. 
+    // Over-written in current tests.
     function Race(){
 
-        var _nodeAddr = address(0x579fadbb36a7b7284ef4e50bbc83f3f294e9a8ec);
+        var nodeAddr = address(0x579fadbb36a7b7284ef4e50bbc83f3f294e9a8ec);
 
         endState = 1;
         openContract = true;
 
-        stateMap[0] = _nodeAddr;
-        stateMap[1] = _nodeAddr;
+        stateMap[0].node = nodeAddr;
+        stateMap[1].node = nodeAddr;
     }
 
     // ------------------------------------------------------------------------------------
@@ -177,10 +179,10 @@ contract Race {
         return racers[racer].endBlock;
     }
 
-    // Returns the stateMap (see storage declarations above)
+    // Returns size of the stateMap (see storage declarations above)
     // (Size of state map should be hardcoded - needs to be set in template)
-    function getStateMap() constant public returns (address[2] map){
-       return stateMap;
+    function getStateMapLength() constant public returns (uint length){
+       return stateMap.length;
     }
 
     // Returns the account address of the most recent racer to commit to the race
@@ -268,13 +270,15 @@ contract Race {
         return true;
     }
 
-    // Iterates through the statemap broadcasting a registration event 
-    //  the caller's commitment to this race contract. 
-    // ** THIS IS A STUB: SEE TODO above - broadcast registration  **
+    // Iterates through the statemap broadcasting the caller's race 
+    // commitment to each node they will need to interact with. 
     function broadcastCommit() internal {
 
         for (var i = 0; i < stateMap.length; i++){
-            LogRegistration(stateMap[i], msg.sender, address(this));
+
+            var contractAddress = stateMap[i].eventContract;
+            AnimistEvent node = AnimistEvent(contractAddress);
+            node.register( stateMap[i].node, msg.sender, address(this));
         }
     }
 }
