@@ -6,14 +6,19 @@
 // (FWIW they're all currently independent and do not alter any state variables they share, so
 // tests are a little wtf.)
 
+// To validate solidity "throws" the following pattern is used:
+//
+//   fnThatThrows()
+//      .then( val => false.should.be.true )
+//      .catch( err => err.should.be.empty )
+//
+//   A non-throw (i.e. failing test) will trigger a bad assertion in the 'then' block.
+//   This will cause the catch block to fail because 'err' will be a mocha error object, 
+//   rather than the throw's empty object.
+
 const chai = require('chai');
-
-//chai.use(require('../resources/bindings.js'))
-//chai.use(require('chai-bignumber')(web3.toBigNumber(0).constructor))
-chai.use(require('chai-as-promised'));
 chai.use(require('chai-spies'));
-var should = chai.should();
-
+chai.should();
 
 contract('Race', function(accounts) {
   
@@ -72,42 +77,46 @@ contract('Race', function(accounts) {
 
     describe('Methods', ()=>{
 
-        describe('verify(address client, uint64 time)', () => {
-            it('should set racers verifier field to the address of authenticating node', (done) =>{
-                race.verify(racerA, 12345, {from: node}).then(() => {
-                    race.getVerifier(racerA, {from: node}).should.eventually.equal(node).notify(done);
+        describe('verifyPresence(address client, uint64 time)', () => {
+            it('should set racers verifier field to the address of authenticating node', () =>{
+                return race.verifyPresence(racerA, 12345, {from: node}).then(() => {
+                    return race.getVerifier.call(racerA).then( val => val.should.equal(node) );
                 })
             });
 
-            it('should set racers timeVerified field to passed value', (done) =>{
+            it('should set racers timeVerified field to passed value', () =>{
                 let expected = 12345;
-                race.verify(racerA, expected, {from: node}).then(() => {
-                    race.getTimeVerified(racerA, {from: node}).then( (val) => {
-                        parseInt(val).should.equal(expected);
-                        done();
-                    })
+                return race.verifyPresence(racerA, expected, {from: node}).then(() => {
+                    return race.getTimeVerified.call(racerA)
+                        .then(result => parseInt(result).should.equal(expected))
                 })
             });
 
             // -- Should have mods: nodeCanVerify, clientCanStep, clientIsRacer --   
 
             // where: clientIsRacer passes, nodeCanVerify passes, clientCanStep fails  
-            it('should throw if the client cannot step', (done) => {
-                race.setClientState(racerA, endState, {from: node}).then(() => {
-                    race.verify(racerA, 12345, {from: node}).should.eventually.be.rejected.notify(done);
+            it('should throw if the client cannot step', () => {
+                return race.setClientState(racerA, endState, {from: node}).then(() => {
+                    return race.verifyPresence(racerA, 12345, {from: node})
+                        .then( val => false.should.be.true )
+                        .catch( err => err.should.be.empty )  
                 })
             });
 
             // where: nodeCanVerifyPasses, clientCanStep passes, clientIsRacer fails
-            it('should throw if the client has not committed to the race', (done) => {
+            it('should throw if the client has not committed to the race', () => {
                 let bad_racer = accounts[4];
-                race.verify(bad_racer, 12345, {from: node}).should.eventually.be.rejected.notify(done);   
+                return race.verifyPresence(bad_racer, 12345, {from: node})
+                    .then( val => false.should.be.true )
+                    .catch( err => err.should.be.empty )  
             });
 
             // where: nodeCanVerifyPasses, clientIsRacerPasses, racerCanStep fails
-            it('should throw if node is NOT specified to auth for racers current step', (done)=>{
+            it('should throw if node is NOT specified to auth for racers current step', ()=>{
                 let bad_node = accounts[4];
-                race.verify(racerA, 12345, {from: bad_node}).should.eventually.be.rejected.notify(done);          
+                return race.verifyPresence(racerA, 12345, {from: bad_node})
+                    .then( val => false.should.be.true )
+                    .catch( err => err.should.be.empty )           
             });
         });
 
@@ -118,12 +127,12 @@ contract('Race', function(accounts) {
                 race.commitSelf({from: racerC }).then(() => {
                     
                     Promise.all([
-                        race.getAccount(racerC, {from: node}),
-                        race.getAuthority( racerC, {from: node}),
-                        race.getVerifier( racerC, {from: node}),
-                        race.getTimeVerified( racerC, {from: node}),
-                        race.getState( racerC, {from: node}),
-                        race.getMostRecentCommit( {from: node}) // Check if pushed to racerList array
+                        race.getAccount.call(racerC ),
+                        race.getAuthority.call( racerC ),
+                        race.getVerifier.call( racerC ),
+                        race.getTimeVerified.call( racerC ),
+                        race.getState.call( racerC ),
+                        race.getMostRecentCommit.call() // Check if pushed to racerList array
                     
                     ]).then((results) => {
                         results[0].should.equal(racerC);
@@ -151,30 +160,34 @@ contract('Race', function(accounts) {
             // -- Should have mods: senderUnknown, contractIsOpen --  
 
             // where: contractIsOpen passes, senderUnknown fails   
-            it('should throw if the sender has already committed to race', (done) => {
+            it('should throw if the sender has already committed to race', () => {
                 // Racer A gets committed by default in the before fn of this test
-                race.commitSelf({from: racerA }).should.eventually.be.rejected.notify(done);
+                return race.commitSelf({from: racerA })
+                    .then( val => false.should.be.true )
+                    .catch( err => err.should.be.empty )  
             });
 
             // where: senderUnknown passes, contractIsOpen fails
-            it('should throw if the contract is closed to new registrants', (done) => {
+            it('should throw if the contract is closed to new registrants', () => {
                 let racerC = accounts[3];
 
-                race.setContractOpen(false, {from: node}).then(() => {
-                    race.commitSelf({from: racerC }).should.eventually.be.rejected.notify(done);
-                });    
+                return race.setContractOpen(false, {from: node}).then(() => {
+                    return race.commitSelf({from: racerC }) 
+                        .then( val => false.should.be.true )
+                        .catch( err => err.should.be.empty )  
+                })
             });
         });
 
         describe('advanceSelf()', ()=>{
 
             it('should advance the racer one step and reset their verification status', (done)=>{      
-                // Apparently these can't all be called sequentially in a Promise All.
+                // Apparently these can't all be called sequentially in a Promise All ?
                 race.setClientVerifier(racerA, node, {from: node}).then(() => {
                     race.advanceSelf({from: racerA}).then((result) => {
                         Promise.all([ 
-                            race.getState(racerA, {from: node}),
-                            race.getVerifier(racerA, {from: node})
+                            race.getState.call(racerA),
+                            race.getVerifier.call(racerA)
                         ]).then((results) => {
                             parseInt(results[0]).should.equal(1);
                             results[1].should.equal(utils.toAddress(0));
@@ -189,7 +202,7 @@ contract('Race', function(accounts) {
         
                 race.setClientVerifier(racerA, node, {from: node}).then(() => {
                     race.advanceSelf({from: racerA}).then(() => {
-                        race.getEndBlock(racerA, {from: racerA}).then((result) => {
+                        race.getEndBlock.call(racerA).then((result) => {
                             parseInt(result).should.equal(web3.eth.blockNumber);
                             done();
                         });
@@ -205,7 +218,7 @@ contract('Race', function(accounts) {
                     race.setContractEndState(2, {from: node}) 
                 ]).then(() => {
                     race.advanceSelf({from: racerA}).then(() => {
-                        race.getEndBlock(racerA, {from: racerA}).then((result) => {
+                        race.getEndBlock.call(racerA).then((result) => {
                             parseInt(result).should.equal(0);
                             done();
                         });
@@ -216,76 +229,91 @@ contract('Race', function(accounts) {
             // -- Should have mods: senderCanStep, senderIsRacer, senderIsVerified -- 
 
             // where: senderIsRacer fails - other mods would fail too, but it's first.
-            it('should throw if the client has not committed to the race', (done) => {
+            it('should throw if the client has not committed to the race', () => {
                 let bad_racer = accounts[4];
-                race.advanceSelf({from: racerA}).should.eventually.be.rejected.notify(done);        
+                return race.advanceSelf({from: racerA})
+                    .then( val => false.should.be.true )
+                    .catch( err => err.should.be.empty )       
             });
 
             // where: senderIsRacer passes, senderIsVerified passes, senderCanStep fails
-            it('should throw if the client cannot step', (done) => {
-                Promise.all([
+            it('should throw if the client cannot step', () => {
+                return Promise.all([
                     race.setClientVerifier(racerA, node, {from: node}),
-                    race.setClientState(racerA, endState, {from: node}),
+                    race.setClientState(racerA, endState, {from: node})      
                 ]).then(() => {
-                    race.advanceSelf({from: racerA}).should.eventually.be.rejected.notify(done);
-                })
+                    return race.advanceSelf({from: racerA})
+                        .then( val => false.should.be.true )
+                        .catch( err => err.should.be.empty ) 
+                });
+                 
             });
 
             // where: senderCanStep passes, senderIsRacer passes, senderIsVerified fails
-            it ('should throw if sender has not been verified by the correct node', (done) => {
-                race.setClientVerifier(racerA, utils.toAddress(0), {from: node}).then(() => {
-                    race.advanceSelf({from: racerA }).should.eventually.be.rejected.notify(done);
-                });        
+            it ('should throw if sender has not been verified by the correct node', () => {
+                return race.setClientVerifier(racerA, utils.toAddress(0), {from: node}).then(() => {
+                    return race.advanceSelf({from: racerA })
+                        .then( val => false.should.be.true )
+                        .catch( err => err.should.be.empty )  
+                })
+                
+                        
             });
         });
 
         describe('rewardSelf()', () => {
 
             // Functionality after the 'first' check has not been written yet
-            it('should check to see if the caller came first', (done) => {      
+            it('should check to see if the caller came first', () => {      
                 let now = web3.eth.blockNumber;
                 chai.spy.on(race, 'isFirst')
                 
-                Promise.all([
+                return Promise.all([
                     race.setClientEndBlock(racerA, now, {from: node}),
                     race.setClientState(racerA, endState, {from: node}),
                 ]).then(() => {
-                    race.rewardSelf({from: racerA }).then(() => {
-                        race.isFirst.should.have.been.called;
-                        done();
-                    });
+                    return race.rewardSelf({from: racerA }).then( results => race.isFirst.should.have.been.called )
                 })
             });
 
             // -- Should have mods: senderIsRacer, senderIsFinished, senderCanCheckResults -- 
 
             // Racer DNE - there's nothing to set here . . . 
-            it('should throw if the client has not committed to the race', (done) => {
+            it('should throw if the client has not committed to the race', () => {
                 let bad_racer = accounts[4];
-                race.rewardSelf({from: bad_racer}).should.eventually.be.rejected.notify(done);        
+                return race.rewardSelf({from: bad_racer})
+                    .then( val => false.should.be.true )
+                    .catch( err => err.should.be.empty )        
             });
 
             // where: senderIsRacer passes, senderCanCheckResults passes, senderIsFinished fails.
-            it ('should throw if sender has not finished', (done) => {
+            it ('should throw if sender has not finished', () => {
                 let now = web3.eth.blockNumber;
-                race.setClientEndBlock(racerA, now, {from: node}).then(() => {
-                    race.rewardSelf({from: racerA }).should.eventually.be.rejected.notify(done);
-                });  
+                
+                return race.setClientEndBlock(racerA, now, {from: node}).then( () => {
+                    return race.rewardSelf({from: racerA })
+                        .then( val => false.should.be.true )
+                        .catch( err => err.should.be.empty ) 
+                });    
             });
 
             // where: senderIsRacer passes, senderIsFinished passes, senderCanCheckResults fails
-            it ('should throw if the sender finished in the current block', (done) => {
+            it ('should throw if the sender finished in the current block', () => {
                 
                 // Test-rpc advances a block for each tx: 'now + 3' reflects the the two
                 // blocks churned during the test setup? Frankly confused by this - 
                 // the unitary modifier test for this behaves differently (in race_modifiers.js). 
                 let now = web3.eth.blockNumber + 3; 
-                Promise.all([
+        
+                return Promise.all([
                     race.setClientState(racerA, endState, {from: node}),
-                    race.setClientEndBlock(racerA, now, {from: node})
-                ]).then(() => {
-                    race.rewardSelf({from: racerA }).should.eventually.be.rejected.notify(done);
-                });
+                    race.setClientEndBlock(racerA, now, {from: node}),
+                    
+                ]).then( () => {
+                    return race.rewardSelf({from: racerA })
+                        .then( val => false.should.be.true )
+                        .catch( err => err.should.be.empty ) 
+                })
             });
         });
 
@@ -295,53 +323,54 @@ contract('Race', function(accounts) {
 
         describe('isFirst(racer)', () => {
 
-            it('should return true if the queried racer is the only person who finished', (done)=>{
+            it('should return true if the queried racer is the only person who finished', ()=>{
 
                 let now = Date.now();
                 let endBlock = web3.eth.blockNumber;
 
                 // Set up racerA to be only winnner
-                Promise.all([
+                return Promise.all([
                     race.setClientTimeVerified(racerA, now, {from: node}),
-                    race.setClientEndBlock(racerA, endBlock, {from: node})
-                ]).then(() => {
-                    race.testIsFirst(racerA).should.eventually.be.true.notify(done);
+                    race.setClientEndBlock(racerA, endBlock, {from: node}),    
+                ]).then(() => { 
+                    return race.testIsFirst(racerA).then( result => result.should.be.true )
                 })
             });
 
-            it('should return true if others finished and queried racer finished earliest', (done)=>{
+            it('should return true if others finished and queried racer finished earliest', ()=>{
 
                 let now = Date.now();
                 let win = now - 10;
                 let endBlock = web3.eth.blockNumber;
 
                 // Set up racerA to finish, racerB to win
-                Promise.all([
+                return Promise.all([
                     race.setClientTimeVerified(racerA, now, {from: node}),
                     race.setClientEndBlock(racerA, endBlock, {from: node}),
                     race.setClientTimeVerified(racerB, win, {from: node}),
                     race.setClientEndBlock(racerB, endBlock, {from: node}),
+                    
                 ]).then(() => {
-                    race.testIsFirst(racerB).should.eventually.be.true.notify(done);
+                    return race.testIsFirst(racerB).then( result => result.should.be.true )
                 })
-
+                
             });
 
-            it('should return false if others finished earlier than queried racer', (done) =>{
+            it('should return false if others finished earlier than queried racer', () =>{
 
                 let now = Date.now();
                 let win = now - 10;
                 let endBlock = web3.eth.blockNumber;
 
                 // Set up racerA to finish, racerB to win
-                Promise.all([
+                return Promise.all([
                     race.setClientTimeVerified(racerA, now, {from: node}),
                     race.setClientEndBlock(racerA, endBlock, {from: node}),
                     race.setClientTimeVerified(racerB, win, {from: node}),
-                    race.setClientEndBlock(racerB, endBlock, {from: node}),
+                    race.setClientEndBlock(racerB, endBlock, {from: node}),       
                 ]).then(() => {
-                    race.testIsFirst(racerA).should.eventually.be.false.notify(done);
-                })
+                    return race.testIsFirst(racerA).then( result => result.should.be.false )
+                });
             });
         });
 
@@ -375,63 +404,73 @@ contract('Race', function(accounts) {
 
         describe('nodeCanVerify', () => {
 
-            it ('should pass if node is specified to auth for racers current step', (done) => {
-                race.testNodeCanVerify(racerA, {from: node}).should.eventually.be.true.notify(done);
+            it ('should pass if node is specified to auth for racers current step', () => {
+                return race.testNodeCanVerify(racerA, {from: node}).then( result => result.should.be.true )   
             });
 
-            it ('should throw if node is NOT specified to auth for racers current step', (done) => {
+            it ('should throw if node is NOT specified to auth for racers current step', () => {
                 let bad_node = accounts[4];
-                race.testNodeCanVerify(racerA, {from: bad_node}).should.eventually.be.rejected.notify(done);
+                return race.testNodeCanVerify(racerA, {from: bad_node})
+                    .then( val => false.should.be.true )
+                    .catch( err => err.should.be.empty ) 
             });
         });
 
         describe('clientCanStep', () => {
 
-            it ('should pass if racers last completed step is before the final step', (done) => {
-                race.testClientCanStep(racerA, {from: node}).should.eventually.be.true.notify(done);
+            it ('should pass if racers last completed step is before the final step', () => {
+                return race.testClientCanStep(racerA, {from: node}).then( result => result.should.be.true )
             });
 
-            it ('should throw if racers last completed step was the final step', (done) =>{
-                race.setClientState(racerA, endState, {from: node}).then(() => {
-                    race.testClientCanStep(racerA, {from: node}).should.eventually.be.rejected.notify(done);
-                })
+            it ('should throw if racers last completed step was the final step', () =>{
+                return race.setClientState(racerA, endState, {from: node}).then( () => {
+                    return race.testClientCanStep(racerA, {from: node})
+                        .then( val => false.should.be.true )
+                        .catch( err => err.should.be.empty ) 
+                });   
             });
         });
 
         describe('clientIsRacer', () => {
 
-            it ('should pass if client has committed to race', (done) => {
-                race.testClientIsRacer(racerA, {from: node}).should.eventually.be.true.notify(done);
+            it ('should pass if client has committed to race', () => {
+                return race.testClientIsRacer(racerA, {from: node}).then( result => result.should.be.true )
             });
 
-            it ('should throw if client has NOT commited to race', (done) => {
+            it ('should throw if client has NOT commited to race', () => {
                 let bad_racer = accounts[4];
-                race.testClientIsRacer(bad_racer, {from: node}).should.eventually.be.rejected.notify(done);        
+                return race.testClientIsRacer(bad_racer, {from: node})
+                    .then( val => false.should.be.true )
+                    .catch( err => err.should.be.empty )        
             });
         });
 
         describe('senderCanStep', () => {
 
-            it ('should pass if racers last completed step is before the final step', (done) => {
-                race.testSenderCanStep.call(racerA).should.eventually.be.true.notify(done);
+            it ('should pass if racers last completed step is before the final step', () => {
+                return race.testSenderCanStep({from: racerA}).then( result => result.should.be.true )
             });
 
-            it ('should throw if racers last completed step was the final step', (done) =>{
-                race.setClientState(racerA, endState, {from: node}).then(() => {
-                    race.testSenderCanStep({from: racerA}).should.eventually.be.rejected.notify(done);
+            it ('should throw if racers last completed step was the final step', () =>{
+                return race.setClientState(racerA, endState, {from: node}).then( () => {
+                    return race.testSenderCanStep({from: racerA})
+                        .then( val => false.should.be.true )
+                        .catch( err => err.should.be.empty ) 
                 });
             });
         });
 
         describe('senderIsRacer', () => {
 
-            it ('should pass if sender has committed to race', (done) => {
-                race.testSenderIsRacer({from: racerA }).should.eventually.be.true.notify(done);
+            it ('should pass if sender has committed to race', () => {
+                return race.testSenderIsRacer({from: racerA }).then( result => result.should.be.true )
             });
 
-            it ('should throw if sender has NOT commited to race', (done) => {
+            it ('should throw if sender has NOT commited to race', () => {
                 let bad_racer = accounts[4];
-                race.testSenderIsRacer({from: bad_racer}).should.eventually.be.rejected.notify(done);        
+                return race.testSenderIsRacer({from: bad_racer})
+                    .then( val => false.should.be.true )
+                    .catch( err => err.should.be.empty )     
             });
         });
 
@@ -439,92 +478,108 @@ contract('Race', function(accounts) {
 
             // Note: The test contract's stateMap has test node address for both states.
             
-            it ('should pass if sender has been verified by the correct node', (done) => {
-                race.setClientVerifier(racerA, node, {from: node}).then(() => {
-                    race.testSenderIsVerified({from: racerA }).should.eventually.be.true.notify(done);
-                })
+            it ('should pass if sender has been verified by the correct node', () => {
+                return race.setClientVerifier(racerA, node, {from: node}).then( () => { 
+                    return race.testSenderIsVerified({from: racerA })
+                        .then( result => result.should.be.true )
+                });
             });
 
-            it ('should throw if sender has NOT been verified by the correct node', (done) => {
-                race.setClientVerifier(racerA, utils.toAddress(0), {from: node}).then(() => {
-                    race.testSenderIsVerified({from: racerA }).should.eventually.be.rejected.notify(done);
-                });        
+            it ('should throw if sender has NOT been verified by the correct node', () => {
+                return race.setClientVerifier(racerA, utils.toAddress(0), {from: node}).then(() => {
+                    return race.testSenderIsVerified({from: racerA })
+                        .then( val => false.should.be.true )
+                        .catch( err => err.should.be.empty ) 
+                });                 
             });
         });
 
         describe('senderIsAuthorized', () => {
 
-            it ('should pass if sender can authorize their own tx', (done) => {
-                race.setClientAuthority(racerA, racerA, {from: node}).then(() => {
-                    race.testSenderIsAuthorized({from: racerA }).should.eventually.be.true.notify(done);
-                })
+            it ('should pass if sender can authorize their own tx', () => {
+                return race.setClientAuthority(racerA, racerA, {from: node}).then(() => {
+                    return race.testSenderIsAuthorized({from: racerA })
+                        .then( result => result.should.be.true )
+                });
             });
 
-            it ('should throw if sender cannot authorize their own tx', (done) => {
-                race.setClientAuthority(racerA, racerB, {from: node}).then(() => {
-                    race.testSenderIsAuthorized({from: racerA }).should.eventually.be.rejected.notify(done);
-                });        
+            it ('should throw if sender cannot authorize their own tx', () => {
+                return race.setClientAuthority(racerA, racerB, {from: node}).then(() => {
+                    return race.testSenderIsAuthorized({from: racerA })
+                        .then( val => false.should.be.true )
+                        .catch( err => err.should.be.empty )
+                });   
             });
         });
 
         describe('senderUnknown', () => {
 
-            it ('should pass if the sender has NOT registered w/ the contract', (done) => {
+            it ('should pass if the sender has NOT registered w/ the contract', () => {
                 let unknown = accounts[4];
-                race.testSenderUnknown({from: unknown}).should.eventually.be.true.notify(done);
+                return race.testSenderUnknown({from: unknown}).then( result => result.should.be.true )
             });
 
-            it ('should throw if the sender has registered w/ the contract', (done) => {
-                race.testSenderUnknown({from: racerA }).should.eventually.be.rejected.notify(done);
+            it ('should throw if the sender has registered w/ the contract', () => {
+                return race.testSenderUnknown({from: racerA })
+                    .then( val => false.should.be.true )
+                    .catch( err => err.should.be.empty )    
             });
         });
 
         describe('senderIsFinished', () => {
 
-            it ('should pass if the racer has reached the end state', (done) => {
-                race.setClientState(racerA, endState, {from: node}).then(() => {
-                   race.testSenderIsFinished({from: racerA}).should.eventually.be.true.notify(done); 
-                });    
+            it ('should pass if the racer has reached the end state', () => {
+                return race.setClientState(racerA, endState, {from: node}).then(() => {
+                    return race.testSenderIsFinished({from: racerA})
+                        .then( result => result.should.be.true )
+                }); 
             });
 
             // Note: Racer state defaults to 0 before test
-            it ('should throw if the sender has NOT reached the end state', (done) => {
-                race.testSenderIsFinished({from: racerA }).should.eventually.be.rejected.notify(done);
+            it ('should throw if the sender has NOT reached the end state', () => {
+                return race.testSenderIsFinished({from: racerA })
+                    .then( val => false.should.be.true )
+                    .catch( err => err.should.be.empty )    
             });
         });
 
         describe('senderCanCheckResults', () => {
 
-            it ('should pass if the racer finished before the current block', (done) => {
+            it ('should pass if the racer finished before the current block', () => {
                 let before = web3.eth.blockNumber - 1;
-                race.setClientEndBlock(racerA, before, {from: node}).then(() => {
-                   race.testSenderCanCheckResults({from: racerA}).should.eventually.be.true.notify(done); 
-                });    
+                return race.setClientEndBlock(racerA, before, {from: node}).then(() => {
+                    return race.testSenderCanCheckResults({from: racerA})
+                        .then( result => result.should.be.true )  
+                });
             });
 
             // Note: Because test-rpc automatically increments per transaction
             // 'now' will be blockNumber + 1 after the set tx is run. . . So 
             // this IS actually a test for endBlock/currentBlock equivalence. 
-            it ('should throw if racer finished in the current block', (done) => {
+            it ('should throw if racer finished in the current block', () => {
                 
-                let now = web3.eth.blockNumber + 1;
-                race.setClientEndBlock(racerA, now, {from: node}).then(() => {
-                    race.testSenderCanCheckResults({from: racerA }).should.eventually.be.rejected.notify(done);
-                });
+                let present = web3.eth.blockNumber + 1;
+                return race.setClientEndBlock(racerA, present, {from: node}).then(() => {
+                    return race.testSenderCanCheckResults({from: racerA })
+                        .then( val => false.should.be.true )
+                        .catch( err => err.should.be.empty )   
+                });       
             });
         });
 
         describe('contractIsOpen', () => {
 
             // Note: Contract defaults to open
-            it ('should pass if the contract is still accepting registrants', (done) => {
-                race.testContractIsOpen(racerA, {from: node}).should.eventually.be.true.notify(done);     
+            it ('should pass if the contract is still accepting registrants', () => {
+                return race.testContractIsOpen(racerA, {from: node}).then( result => result.should.be.true )     
             });
 
-            it ('should throw if the contract is closed to new registrants', (done) => {
-                race.setContractOpen(false, {from: node}).then(() => {
-                    race.testContractIsOpen({from: node }).should.eventually.be.rejected.notify(done);
-                });
+            it ('should throw if the contract is closed to new registrants', () => {
+                return race.setContractOpen(false, {from: node}).then(() => {
+                    return race.testContractIsOpen({from: node })
+                        .then( val => false.should.be.true )
+                        .catch( err => err.should.be.empty ) 
+                });  
             });
         });
     });

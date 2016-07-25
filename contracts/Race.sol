@@ -194,8 +194,10 @@ contract Race {
     // -------------------------------  Public Methods   ----------------------------------
     // ------------------------------------------------------------------------------------
 
-    // Called by node to authorize step
-    function verify(address client, uint64 time) public
+    // Called by node to authorize step. 'verifyPresence' is part of the Animist contract API.
+    // Nodes that get a req to authenticate presence will use a generic abi for this method and execute
+    // it on the contract instance. 
+    function verifyPresence(address client, uint64 time) public
         clientIsRacer(client)
         clientCanStep(client)
         nodeCanVerify(client)
