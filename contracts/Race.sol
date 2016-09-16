@@ -218,7 +218,7 @@ contract Race {
 
     // Called by user to advance their state 
     // Resets status to unverified, for next step. 
-    // If racer has finish sets their endBlock field to
+    // If racer has finished sets their endBlock field to
     // the current block number.
     function advanceSelf() public
         senderIsRacer

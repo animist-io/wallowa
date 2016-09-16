@@ -1,12 +1,12 @@
 # wallowa
-**(Warning: Draft. Under construction. Unusable.)**
+**(Warning: Draft. Pre-alpha.)**
 
 This repo will house Solidity templates that target Animist IoT endpoints. Initial work is being done on a simple contract that allows contestants to participate in a wagered race from one endpoint to another.
 
-## Installation
+## Installation 
 
 ```
-$ npm install -g truffle@1.0.3
+$ npm install -g truffle
 $ npm install -g ethereumjs-testrpc
 ```
 
@@ -14,6 +14,11 @@ To run test-rpc with 5 accounts that are preserved between sessions
 
 ```
 $ ./bin/rpc.sh
+```
+
+## Tests
+```
+$ truffle test
 ```
 
 # Race.sol    [![Build Status](https://travis-ci.org/animist-io/wallowa.svg?branch=master)](https://travis-ci.org/animist-io/wallowa)
