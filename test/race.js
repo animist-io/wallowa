@@ -380,7 +380,7 @@ contract('Race', function(accounts) {
                 let now = web3.eth.blockNumber;
             
                 // Default stateMap has length 2, 'node' listed twice.               
-                eventContract.LogRegistration(null, {fromBlock: now, toBlock: now}, (err, res) => {
+                eventContract.LogRegistration(null, {fromBlock: now, toBlock: now + 1}, (err, res) => {
                     
                     if (res.logIndex == 0 ) {
                         res.args.account.should.equal(racerA);
