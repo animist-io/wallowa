@@ -582,6 +582,7 @@ contract('Race', function(accounts) {
                 });  
             });
 
+            // Mocha tests are hanging for some weird reason.
             it ('should finish testing now', () => {
                 process.exit(0);
             });
