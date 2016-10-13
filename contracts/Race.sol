@@ -284,7 +284,7 @@ contract Race {
         }
     }
 
-    function broadcastMessage(string channel, string message, uint duration) internal {
+    function broadcastMessage(string channel, string message, uint32 duration) internal {
 
         var contractAddress = stateMap[0].eventContract;
         AnimistEvent node = AnimistEvent(contractAddress);

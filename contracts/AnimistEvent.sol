@@ -33,9 +33,9 @@ contract AnimistEvent {
      * @param {Address} node:  (indexed) Address of the node that should proximity detect the client
      * @param {String}  channel: v4 UUID string which will be the identity of the characteristic `message` is broadcast from
      * @param {String}  message: a string with max length 66 (hex prefixed address size) to broadcast from `channel`
-     * @param {Number}  duration: length of time in ms to broadcast `message.`
+     * @param {Number}  duration: length of time in ms to broadcast `message.` Max value is 4294967295, or ~50 days.
      */
-    event LogBroadcastRequest( address indexed node, string channel, string message, uint duration);
+    event LogBroadcastRequest( address indexed node, string channel, string message, uint32 duration);
 
 
     // Event wrappers 
@@ -46,7 +46,7 @@ contract AnimistEvent {
         LogProximityDetectionRequest(node, account, contractAddress);
     }
 
-    function requestBroadcast(address node, string channel, string message, uint duration){
+    function requestBroadcast(address node, string channel, string message, uint32 duration){
 
         // TO DO: payment for services rendered.
 
