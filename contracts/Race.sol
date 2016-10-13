@@ -280,8 +280,15 @@ contract Race {
 
             var contractAddress = stateMap[i].eventContract;
             AnimistEvent node = AnimistEvent(contractAddress);
-            node.register( stateMap[i].node, msg.sender, address(this));
+            node.requestProximityDetection( stateMap[i].node, msg.sender, address(this));
         }
+    }
+
+    function broadcastMessage(string channel, string message, uint duration) internal {
+
+        var contractAddress = stateMap[0].eventContract;
+        AnimistEvent node = AnimistEvent(contractAddress);
+        node.requestBroadcast( stateMap[0].node, channel, message, duration);
     }
 }
 

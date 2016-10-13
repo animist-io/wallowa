@@ -16,6 +16,7 @@
 //   This will cause the catch block to fail because 'err' will be a mocha error object, 
 //   rather than the throw's empty object.
 
+const util = require('ethereumjs-util');
 const chai = require('chai');
 chai.use(require('chai-spies'));
 chai.should();
@@ -380,7 +381,7 @@ contract('Race', function(accounts) {
                 let now = web3.eth.blockNumber;
             
                 // Default stateMap has length 2, 'node' listed twice.               
-                eventContract.LogRegistration(null, {fromBlock: now, toBlock: now + 1}, (err, res) => {
+                eventContract.LogProximityDetectionRequest(null, {fromBlock: now, toBlock: now + 1}, (err, res) => {
                     
                     if (res.logIndex == 0 ) {
                         res.args.account.should.equal(racerA);
@@ -390,7 +391,29 @@ contract('Race', function(accounts) {
                     }
                 });
                 // Run
-                race.testBroadcastCommit(racerA, {from: racerA});
+                race.testBroadcastCommit({from: racerA});
+            });
+        });
+
+        describe('broadcastMessage()', ()=>{
+
+            it('should broadcast a message', (done)=>{
+                let now = web3.eth.blockNumber;
+                let channel = "B4D5272F-D4AD-4903-A6F5-37032700EB7D";
+                let message = "Hello";
+                let  duration = 30000;
+
+                eventContract.LogBroadcastRequest(null, {fromBlock: now, toBlock: now + 1}, (err, res) => {
+
+                    res.args.node.should.equal(node);
+                    res.args.channel.should.equal(channel);
+                    res.args.message.should.equal(message);
+                    res.args.duration.toNumber().should.equal(duration);
+                    done();
+                   
+                });
+                // Run
+                race.testBroadcastMessage(channel, message, duration, {from: racerA});
             });
         });
     });

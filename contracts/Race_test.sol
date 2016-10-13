@@ -77,6 +77,13 @@ contract Race_test is Race {
     function testBroadcastCommit(){
         broadcastCommit();
     }
+
+    function testBroadcastMessage( string channel, string message, uint duration){
+        broadcastMessage(channel, message, duration);
+    }
+
+    // -------------------- EVENTS --------------------------
+
     
     // ------------  MODIFIER TEST WRAPPERS -----------------
     // All tests return true if fn makes it through the gate.
