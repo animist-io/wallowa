@@ -16,7 +16,6 @@
 //   This will cause the catch block to fail because 'err' will be a mocha error object, 
 //   rather than the throw's empty object.
 
-const util = require('ethereumjs-util');
 const chai = require('chai');
 chai.use(require('chai-spies'));
 chai.should();
