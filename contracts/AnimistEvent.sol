@@ -1,10 +1,5 @@
 /** 
-Every Animist endpoint has an events contract deployed to the 
-the chain that can be called by other contracts
-to notify the endpoint that the calling contract will request services from it.
-
-These addresses can be found on IPFS at . . . . someday.
-
+Every Animist endpoint filters via the 'node' topic for events on this contract 
 Use within an Animist contract:
     
     (after importing AnimistEvent.sol)
@@ -19,7 +14,7 @@ Security issues: spamming a node. */
 contract AnimistEvent {
 
     /*
-     * @event LogProximityDetection
+     * @event LogProximityDetectionRequest
      * @param {Address} node:  (indexed) Address of the node that should proximity detect the client
      * @param {Address} account: (indexed) Account address of the client to be proximity detected
      * @param {Address} contractAddress: Address of the contract whose verifyPresence method will be executed 
@@ -29,27 +24,44 @@ contract AnimistEvent {
     event LogProximityDetectionRequest( address indexed node, address indexed account, address indexed contractAddress);
     
    /*
-     * @event LogBroadcast
-     * @param {Address} node:  (indexed) Address of the node that should proximity detect the client
-     * @param {String}  channel: v4 UUID string which will be the identity of the characteristic `message` is broadcast from
+     * @event LogMessagePublicationRequest
+     * @param {Address} node:  (indexed) Address of the node that should publish requested message.
+     * @param {String}  uuid: v4 UUID string which will be the identity of the characteristic `message` is broadcast from
      * @param {String}  message: a string with max length 66 (hex prefixed address size) to broadcast from `channel`
      * @param {Number}  duration: length of time in ms to broadcast `message.` Max value is 4294967295, or ~50 days.
      */
-    event LogBroadcastRequest( address indexed node, string channel, string message, uint32 duration);
+    event LogMessagePublicationRequest( address indexed node, string uuid, string message, uint32 duration);
+
+    /*
+     * @event LogBeaconBroadcastRequest
+     * @param {Address} node:  (indexed) Address of the node that should broadcast requested beacon.
+     * @param {String}  uuid: v4 UUID string which will be the identity of the broadcast beacon. Whale-island will
+                              then generate random values for the `major` and `minor` beacon components and invoke
+                              `contractAddress`'s submitSignedBeacon method, passing it a web3 signed version of the string:
+                              '<uuid>:<major:<minor>'.
+     * @param {Address} contractAddress: address of the contract requesting this service. It must implement a method 
+                       with the function signature `submitSignedBeacon( bytes32 hash )`
+     */
+    event LogBeaconBroadcastRequest( address indexed node, string uuid, address contractAddress );
 
 
-    // Event wrappers 
+    // ------------------------------------------  Event wrappers ------------------------------------------------------
+    // NB: There will eventually need to be logic here for compensating the node for providing these services. Some sort
+    // of payment will be sent to these methods.
+
     function requestProximityDetection(address node, address account, address contractAddress) {
-
-        // TO DO: payment for services rendered.
 
         LogProximityDetectionRequest(node, account, contractAddress);
     }
 
-    function requestBroadcast(address node, string channel, string message, uint32 duration){
+    function requestMessagePublication(address node, string uuid, string message, uint32 duration){
 
-        // TO DO: payment for services rendered.
+        LogMessagePublicationRequest(node, uuid, message, duration);
+    }
 
-        LogBroadcastRequest(node, channel, message, duration);
+    function requestBeaconBroadcast(address node, string uuid, address contractAddress ){
+
+        LogBeaconBroadcastRequest( node, uuid, contractAddress );
+
     }
 }

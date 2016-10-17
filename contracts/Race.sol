@@ -30,7 +30,7 @@ contract Race {
 
     struct Node {
         address node;               // The nodes personal account. Send money to it. 
-        address eventContract;     // Address of a deployed event contract the node filters for.
+        address eventContract;      // Address of a deployed event contract the node filters for.
     }
 
     // Contract states
@@ -284,11 +284,18 @@ contract Race {
         }
     }
 
-    function broadcastMessage(string channel, string message, uint32 duration) internal {
+    function publishMessage(string uuid, string message, uint32 duration) internal {
 
         var contractAddress = stateMap[0].eventContract;
         AnimistEvent node = AnimistEvent(contractAddress);
-        node.requestBroadcast( stateMap[0].node, channel, message, duration);
+        node.requestMessagePublication( stateMap[0].node, uuid, message, duration);
+    }
+
+    function broadcastBeacon( string uuid ){
+
+        var contractAddress = stateMap[0].eventContract;
+        AnimistEvent node = AnimistEvent(contractAddress);
+        node.requestBeaconBroadcast( stateMap[0].node, uuid, address(this));
     }
 }
 

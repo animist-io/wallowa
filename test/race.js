@@ -394,27 +394,48 @@ contract('Race', function(accounts) {
             });
         });
 
-        describe('broadcastMessage()', ()=>{
+        describe('publishMessage()', ()=>{
 
-            it('should broadcast a message', (done)=>{
+            it('should publish a message', (done)=>{
                 let now = web3.eth.blockNumber;
-                let channel = "B4D5272F-D4AD-4903-A6F5-37032700EB7D";
+                let uuid = "B4D5272F-D4AD-4903-A6F5-37032700EB7D";
                 let message = "Hello";
                 let  duration = 30000;
 
-                eventContract.LogBroadcastRequest(null, {fromBlock: now, toBlock: now + 1}, (err, res) => {
+                eventContract.LogMessagePublicationRequest(null, {fromBlock: now, toBlock: now + 1}, (err, res) => {
 
                     res.args.node.should.equal(node);
-                    res.args.channel.should.equal(channel);
+                    res.args.uuid.should.equal(uuid);
                     res.args.message.should.equal(message);
                     res.args.duration.toNumber().should.equal(duration);
                     done();
                    
                 });
                 // Run
-                race.testBroadcastMessage(channel, message, duration, {from: racerA});
+                race.testPublishMessage(uuid, message, duration, {from: racerA});
             });
         });
+
+        describe('submitSignedBeacon()', () => {
+
+
+        });
+
+        describe('broadcastBeacon', () => {
+
+
+        });
+
+        describe('validateSignedBeacon()', () => {
+            
+            it('should return true when input is the same string as the one the node signed', ()=>{
+
+            });
+
+            it('should return false when input is different than the one the node signed', ()=>{
+
+            });
+        })
     });
 
 

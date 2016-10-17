@@ -78,8 +78,12 @@ contract Race_test is Race {
         broadcastCommit();
     }
 
-    function testBroadcastMessage( string channel, string message, uint32 duration){
-        broadcastMessage(channel, message, duration);
+    function testPublishMessage( string channel, string message, uint32 duration){
+        publishMessage(channel, message, duration);
+    }
+
+    function testBeaconBroadcast(string uuid){
+        broadcastBeacon( uuid );
     }
 
     // -------------------- EVENTS --------------------------
