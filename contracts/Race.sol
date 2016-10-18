@@ -310,8 +310,8 @@ contract Race {
     // Returns true if `receivedStartSignal` (a string w/ form <uuid>:<major>:<minor>) is the 
     // same value as the signal signed by the starting node on broadcast. False otherwise. 
     function isValidStartSignal( string receivedStartSignal ) internal returns (bool result){
-
-        var signal = sha256(receivedStartSignal);
+        
+        var signal = sha3(receivedStartSignal);
         var startNode = ecrecover(signal, signedStartSignal.v, signedStartSignal.r, signedStartSignal.s);
 
         if (startNode == stateMap[0].node)

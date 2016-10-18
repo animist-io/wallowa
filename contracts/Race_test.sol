@@ -82,6 +82,11 @@ contract Race_test is Race {
             return isFirst(racer);
         }
 
+    function testIsValidStartSignal( string signal )
+        constant returns (bool result) {
+            return isValidStartSignal(signal);
+        }
+
     function testBroadcastCommit(){
         broadcastCommit();
     }

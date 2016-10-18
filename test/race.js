@@ -126,6 +126,53 @@ contract('Race', function(accounts) {
             });
         });
 
+        describe('submitSignedBeaconId(uint8 v, bytes32 r, bytes32 s)', () => {
+
+            let msg = 'B4D5272F-D4AD-4903-A6F5-37032700EB7D:64444:63333';
+            let msgHash = util.addHexPrefix(util.sha3(msg).toString('hex'));
+            let signed = web3.eth.sign(node, msgHash);
+            let sig = util.fromRpcSig(signed);
+
+            it('should assign v, r, s to the "signedStartSignal" obj', (done)=> {
+
+                race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node } ).then(()=>{
+
+                    Promise.all([
+                        race.getSignedStartSignal_v(),
+                        race.getSignedStartSignal_r(),
+                        race.getSignedStartSignal_s()
+                    
+                    ]).then( components => {
+                        components[0].toNumber().should.equal(28);
+                        util.isHexPrefixed(components[1]).should.be.true;
+                        util.isHexPrefixed(components[2]).should.be.true;
+                        done();
+                    
+                    }).catch( err =>  {
+                        err.should.equal(0);
+                        done();
+                    })
+                });
+            });
+
+            it('should fail if caller is not the starting node in the race', ()=>{
+
+                return race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: racerA } )
+                    .then( () => false.should.be.true )
+                    .catch( err =>  err.should.be.empty );
+                
+            });
+
+            it('should fail if signedStartSignal is already set', ()=>{
+
+
+                return race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node } )
+                    .then( () => race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node } )
+                    .then( () => false.should.be.true )
+                    .catch( err =>  err.should.be.empty ))
+            });
+        });
+
         describe('commitSelf()', () => {
 
             it('should register the racer with the contract correctly', (done) => {
@@ -380,6 +427,47 @@ contract('Race', function(accounts) {
             });
         });
 
+        describe('isValidStartSignal( string signal )', () => {
+            
+            let msg = 'B4D5272F-D4AD-4903-A6F5-37032700EB7D:64444:63333';
+            let badMsg = "bad";
+
+            let msgHash = util.addHexPrefix(util.sha3(msg).toString('hex'));
+
+            let signed = web3.eth.sign(node, msgHash);
+            let sig = util.fromRpcSig(signed);
+            
+            it('should return true if input is the same string as the one the node signed', ()=>{
+
+                // Sign with 'node' (correct)
+                let signed = web3.eth.sign(node, msgHash);
+                let sig = util.fromRpcSig(signed);
+                
+                // Covert to hex string for correct bytes32 translation
+                sig.r = util.addHexPrefix(sig.r.toString('hex'));
+                sig.s = util.addHexPrefix(sig.s.toString('hex'));
+                
+                return race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node } ).then(()=>{
+                    return race.testIsValidStartSignal(msg).then( val => val.should.be.true )
+                });
+            });
+
+            it('should return false if input is different than the one the node signed', ()=>{
+
+                // Sign with node
+                let signed = web3.eth.sign(racerA, msgHash);
+                let sig = util.fromRpcSig(signed);
+                
+                // Covert to hex string for correct bytes32 translation
+                sig.r = util.addHexPrefix(sig.r.toString('hex'));
+                sig.s = util.addHexPrefix(sig.s.toString('hex'));
+                
+                return race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node } ).then(()=>{
+                    return race.testIsValidStartSignal(badMsg).then( val => val.should.be.false )
+                });
+            });
+        })
+
         describe('broadcastCommit()', ()=>{
 
             it('should fire a registration event about racer for each node listed in the stateMap', (done)=>{
@@ -398,6 +486,26 @@ contract('Race', function(accounts) {
                 // Run
                 race.testBroadcastCommit({from: racerA});
             });
+        });
+
+        describe('broadcastBeacon', () => {
+
+            it('should request a beacon broadcast from the starting node, using the "startSignal" var', (done)=>{
+
+                let now = web3.eth.blockNumber;
+                race.getStartSignal().then( uuid => {
+
+                    eventContract.LogBeaconBroadcastRequest({node: node}, {fromBlock: now, toBlock: now + 1}, (err, res) => {
+
+                        res.args.uuid.should.equal(uuid);
+                        res.args.contractAddress.should.equal(race.address);
+                        done();
+                       
+                    });
+                    race.testBroadcastBeacon({from: racerA});
+                })
+            });
+
         });
 
         describe('publishMessage()', ()=>{
@@ -422,79 +530,6 @@ contract('Race', function(accounts) {
             });
         });
 
-        describe.only('submitSignedBeaconId()', () => {
-
-            let msg = 'B4D5272F-D4AD-4903-A6F5-37032700EB7D:64444:63333';
-            let msgHash = util.addHexPrefix(util.sha3(msg).toString('hex'));
-            let signed = web3.eth.sign(node, msgHash);
-            let sig = util.fromRpcSig(signed);
-
-            it('should assign v, r, s to the "signedStartSignal" obj', (done)=> {
-
-                race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node } ).then(()=>{
-
-                    Promise.all([
-                        race.getSignedStartSignal_v(),
-                        race.getSignedStartSignal_r(),
-                        race.getSignedStartSignal_s()
-                    
-                    ]).then( components => {
-                        components[0].toNumber().should.equal(28);
-                        util.isHexPrefixed(components[1]).should.be.true;
-                        util.isHexPrefixed(components[2]).should.be.true;
-                        done();
-                    
-                    }).catch( err =>  {
-                        err.should.equal(0);
-                        done();
-                    })
-                });
-            });
-
-            it('should fail if caller is not the starting node in the race', ()=>{
-
-                return race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: racerA } )
-                    .then( () => false.should.be.true )
-                    .catch( err =>  err.should.be.empty );
-                
-            });
-
-            it('should fail if signedStartSignal is already set', ()=>{
-
-
-                return race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node } )
-                    .then( () => race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node } )
-                    .then( () => false.should.be.true )
-                    .catch( err =>  err.should.be.empty ))
-            });
-        });
-
-        describe('broadcastBeacon', () => {
-
-            it('should request a beacon broadcast from the starting node, using the "startSignal" var', (done)=>{
-
-                let now = web3.eth.blockNumber;
-                race.getStartSignal().then( uuid => {
-
-                    eventContract.LogBeaconBroadcastRequest({node: node}, {fromBlock: now, toBlock: now + 1}, (err, res) => {
-
-                        res.args.uuid.should.equal(uuid);
-                        res.args.contractAddress.should.equal(race.address);
-                        done();
-                       
-                    });
-                    race.testBroadcastBeacon({from: racerA});
-                })
-            });
-
-        });
-
-        describe('isValidStartSignal()', () => {
-            
-            it('should return true if input is the same string as the one the node signed');
-
-            it('should return false if input is different than the one the node signed');
-        })
     });
 
 

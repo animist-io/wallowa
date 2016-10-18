@@ -6,7 +6,6 @@ contract WhaleIslandTest {
     bool verified;
     uint64 timeVerified;
 
-
     // ------------------- Getters --------------------------
     function getState() constant public returns (uint state){
         return state;
