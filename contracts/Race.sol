@@ -217,6 +217,19 @@ contract Race {
         return startSignal;
     }
 
+    // Return EC components of the signedStartSignal
+    function getSignedStartSignal_v() constant public returns (uint8 v){
+        return signedStartSignal.v;
+    }
+
+    function getSignedStartSignal_r() constant public returns (bytes32 r){
+        return signedStartSignal.r;
+    }
+
+    function getSignedStartSignal_s() constant public returns (bytes32 s){
+        return signedStartSignal.s;
+    }
+
     // ------------------------------------------------------------------------------------
     // -------------------------------  Public Methods   ----------------------------------
     // ------------------------------------------------------------------------------------
@@ -246,7 +259,6 @@ contract Race {
             signedStartSignal.v = v;
             signedStartSignal.r = r;
             signedStartSignal.s = s;
-
         }
 
     // Called by user to commit to race

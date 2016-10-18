@@ -16,6 +16,11 @@
 //   This will cause the catch block to fail because 'err' will be a mocha error object, 
 //   rather than the throw's empty object.
 
+const Web3 = require('web3');
+let testRpc = new Web3.providers.HttpProvider("http://localhost:8545");
+const web3 = new Web3(testRpc);
+
+const util = require('ethereumjs-util');
 const chai = require('chai');
 chai.use(require('chai-spies'));
 chai.should();
@@ -64,7 +69,8 @@ contract('Race', function(accounts) {
             race.setClientEndBlock(racerA, utils.toAddress(0), {from: node}),
             race.setClientEndBlock(racerB, utils.toAddress(0), {from: node}),
             race.setClientAuthority(racerA, utils.toAddress(0), {from: node}),
-            race.setClientAuthority(racerA, utils.toAddress(0), {from: node})
+            race.setClientAuthority(racerA, utils.toAddress(0), {from: node}),
+            race.setSignedStartSignal({from: node})
 
         ]).then((results) => {
             done();
@@ -416,13 +422,51 @@ contract('Race', function(accounts) {
             });
         });
 
-        describe('submitSignedBeaconId()', () => {
+        describe.only('submitSignedBeaconId()', () => {
 
-            it('should assign the v, r, s to the "signedStartSignal" obj');
+            let msg = 'B4D5272F-D4AD-4903-A6F5-37032700EB7D:64444:63333';
+            let msgHash = util.addHexPrefix(util.sha3(msg).toString('hex'));
+            let signed = web3.eth.sign(node, msgHash);
+            let sig = util.fromRpcSig(signed);
 
-            it('should fail if caller is not the starting node in the race');
+            it('should assign v, r, s to the "signedStartSignal" obj', (done)=> {
 
-            it('should fail if signedStartSignal is already set');
+                race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node } ).then(()=>{
+
+                    Promise.all([
+                        race.getSignedStartSignal_v(),
+                        race.getSignedStartSignal_r(),
+                        race.getSignedStartSignal_s()
+                    
+                    ]).then( components => {
+                        components[0].toNumber().should.equal(28);
+                        util.isHexPrefixed(components[1]).should.be.true;
+                        util.isHexPrefixed(components[2]).should.be.true;
+                        done();
+                    
+                    }).catch( err =>  {
+                        err.should.equal(0);
+                        done();
+                    })
+                });
+            });
+
+            it('should fail if caller is not the starting node in the race', ()=>{
+
+                return race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: racerA } )
+                    .then( () => false.should.be.true )
+                    .catch( err =>  err.should.be.empty );
+                
+            });
+
+            it('should fail if signedStartSignal is already set', ()=>{
+
+
+                return race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node } )
+                    .then( () => race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node } )
+                    .then( () => false.should.be.true )
+                    .catch( err =>  err.should.be.empty ))
+            });
         });
 
         describe('broadcastBeacon', () => {

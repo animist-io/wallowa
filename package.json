@@ -23,5 +23,9 @@
     "chai": "^3.5.0",
     "chai-bignumber": "^2.0.0",
     "chai-spies": "^0.7.1"
+  },
+  "dependencies": {
+    "ethereumjs-util": "^4.5.0",
+    "web3": "^0.17.0-beta"
   }
 }

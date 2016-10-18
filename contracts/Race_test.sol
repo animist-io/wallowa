@@ -58,6 +58,12 @@ contract Race_test is Race {
         racers[client].endBlock = endBlock;
     }
 
+    function setSignedStartSignal(){
+        signedStartSignal.v = 0;
+        signedStartSignal.r = bytes32(0);
+        signedStartSignal.s = bytes32(0);
+    }
+
     function getClientAccount(address client) constant returns (address a){
         return racers[client].account;
     }
@@ -66,6 +72,8 @@ contract Race_test is Race {
         delete racers[racer];
         delete racerList[racerList.length - 1]; 
     }
+
+
 
     // --------- INTERNAL FUNCTION WRAPPERS ----------------
     
