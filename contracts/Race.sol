@@ -348,7 +348,7 @@ contract Race {
 
             var contractAddress = stateMap[i].eventContract;
             AnimistEvent node = AnimistEvent(contractAddress);
-            node.requestProximityDetection( stateMap[i].node, msg.sender, address(this));
+            node.requestPresenceVerification( stateMap[i].node, msg.sender, address(this));
         }
     }
 

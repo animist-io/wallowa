@@ -21,7 +21,7 @@ contract AnimistEvent {
      *                                   to authenticate client's presence at the node.
      *
      */
-    event LogProximityDetectionRequest( address indexed node, address indexed account, address indexed contractAddress);
+    event LogPresenceVerificationRequest( address indexed node, address indexed account, address indexed contractAddress);
     
    /*
      * @event LogMessagePublicationRequest
@@ -48,9 +48,9 @@ contract AnimistEvent {
     // NB: There will eventually need to be logic here for compensating the node for providing these services. Some sort
     // of payment will be sent to these methods.
 
-    function requestProximityDetection(address node, address account, address contractAddress) {
+    function requestPresenceVerification(address node, address account, address contractAddress) {
 
-        LogProximityDetectionRequest(node, account, contractAddress);
+        LogPresenceVerificationRequest(node, account, contractAddress);
     }
 
     function requestMessagePublication(address node, string uuid, string message, uint32 duration){

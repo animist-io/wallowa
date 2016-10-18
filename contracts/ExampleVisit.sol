@@ -22,7 +22,7 @@ contract ExampleVisit {
 
         // Instantiate AnimistEvent contract and request proximity detection
         api = AnimistEvent(animistAddress);    
-        api.requestProximityDetection(node, client, address(this));
+        api.requestPresenceVerification(node, client, address(this));
     }
 
     // Implement method the node will execute on proximity detection
