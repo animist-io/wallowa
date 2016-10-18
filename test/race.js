@@ -416,25 +416,40 @@ contract('Race', function(accounts) {
             });
         });
 
-        describe('submitSignedBeacon()', () => {
+        describe('submitSignedBeaconId()', () => {
 
+            it('should assign the v, r, s to the "signedStartSignal" obj');
 
+            it('should fail if caller is not the starting node in the race');
+
+            it('should fail if signedStartSignal is already set');
         });
 
         describe('broadcastBeacon', () => {
 
+            it('should request a beacon broadcast from the starting node, using the "startSignal" var', (done)=>{
+
+                let now = web3.eth.blockNumber;
+                race.getStartSignal().then( uuid => {
+
+                    eventContract.LogBeaconBroadcastRequest({node: node}, {fromBlock: now, toBlock: now + 1}, (err, res) => {
+
+                        res.args.uuid.should.equal(uuid);
+                        res.args.contractAddress.should.equal(race.address);
+                        done();
+                       
+                    });
+                    race.testBroadcastBeacon({from: racerA});
+                })
+            });
 
         });
 
-        describe('validateSignedBeacon()', () => {
+        describe('isValidStartSignal()', () => {
             
-            it('should return true when input is the same string as the one the node signed', ()=>{
+            it('should return true if input is the same string as the one the node signed');
 
-            });
-
-            it('should return false when input is different than the one the node signed', ()=>{
-
-            });
+            it('should return false if input is different than the one the node signed');
         })
     });
 

@@ -44,7 +44,6 @@ contract AnimistEvent {
      */
     event LogBeaconBroadcastRequest( address indexed node, string uuid, address contractAddress );
 
-
     // ------------------------------------------  Event wrappers ------------------------------------------------------
     // NB: There will eventually need to be logic here for compensating the node for providing these services. Some sort
     // of payment will be sent to these methods.
@@ -64,4 +63,5 @@ contract AnimistEvent {
         LogBeaconBroadcastRequest( node, uuid, contractAddress );
 
     }
+
 }

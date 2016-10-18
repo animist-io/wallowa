@@ -4,6 +4,6 @@ contract AnimistAPI {
 
     function verifyPresence(address client, uint64 time){}
 
-    function submitSignedBeacon( bytes32 hash ){}
+    function submitSignedBeaconId(uint8 v, bytes32 r, bytes32 s){}
 
 }

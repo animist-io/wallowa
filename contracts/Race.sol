@@ -33,16 +33,41 @@ contract Race {
         address eventContract;      // Address of a deployed event contract the node filters for.
     }
 
-    // Contract states
-    bool public openContract;       // Set to true while racers may join contract. 
-    uint64 public startTime;        // Time when race began. 
-    uint8 public endState;          // Which step to end race on.
-    Node[2] public stateMap;        // Which nodes expected at which steps. e.g stateMap[2] = node_at_my_house
+    struct SignedBeacon {           // EC signature of beacon-signal emitted by first node as a start signal. 
+        uint8 v;                    // (See submitSignedBeaconId and validateReceivedBeacon methods below)
+        bytes32 r;
+        bytes32 s;
+    }
+
+    // Contract states / constants
+    bool public openContract;               // Set to true while racers may join contract. 
+    uint64 public startTime;                // Time when race began. 
+    uint8 public endState;                  // Which step to end race on.
+    string public startSignal;              // v4 uuid the first node will broadcast to clients as a start signal.
+    Node[2] public stateMap;                // Which nodes expected at which steps. e.g stateMap[2] = node_at_my_house
+    SignedBeacon public signedStartSignal;  // `startSignal` & randomly generated major/minor vals signed by starting node in race.
     
     // Data structures for Racers in this race
     mapping (address => Racer) public racers; // Racer data
     address[] public racerList;               // Addr list for iterative access to the racers mapping
     
+
+    // ----------------------------- Test Constructor   --------------------------------
+    
+    // Stub: This is the section needs to be templated per race. 
+    // Over-written in current tests.
+    function Race(){
+
+        var nodeAddr = address(0x579fadbb36a7b7284ef4e50bbc83f3f294e9a8ec);
+
+        endState = 1;
+        openContract = true;
+        startSignal = '0C3B5446-4B58-4151-BC01-A76CDDC495E4';
+
+        stateMap[0].node = nodeAddr;
+        stateMap[1].node = nodeAddr;
+    }
+
     // ------------------------------------------------------------------------------------
     // -------------------------------  Modifiers -----------------------------------------
     // ------------------------------------------------------------------------------------
@@ -130,19 +155,16 @@ contract Race {
         _
     }
 
-    // ----------------------------- Test Constructor   --------------------------------
-    
-    // Stub: This is the section needs to be templated per race. 
-    // Over-written in current tests.
-    function Race(){
+    // Is start signal uninitialized ?
+    modifier startSignalUnset {
+        if ( signedStartSignal.r != bytes32(0) ) throw;
+        _
+    }
 
-        var nodeAddr = address(0x579fadbb36a7b7284ef4e50bbc83f3f294e9a8ec);
-
-        endState = 1;
-        openContract = true;
-
-        stateMap[0].node = nodeAddr;
-        stateMap[1].node = nodeAddr;
+    // Is caller the first node in the race? i.e. the node authorized to fire the start signal.
+    modifier canSignBeaconId {
+        if ( msg.sender != stateMap[0].node ) throw;
+        _
     }
 
     // ------------------------------------------------------------------------------------
@@ -190,6 +212,11 @@ contract Race {
         return racerList[racerList.length - 1];
     }
 
+    // Returns the startSignal
+    function getStartSignal() constant public returns (string uuid ){
+        return startSignal;
+    }
+
     // ------------------------------------------------------------------------------------
     // -------------------------------  Public Methods   ----------------------------------
     // ------------------------------------------------------------------------------------
@@ -204,6 +231,22 @@ contract Race {
         {
             racers[client].verifier = msg.sender;
             racers[client].timeVerified = time;
+        }
+
+    // Called by node when it receives a beacon broadcast request. submitSignedBeaconId is part of 
+    // the Animist contract API. Node will generate random values for the beacon's major and minor
+    // components, sign a string with the form: <uuid>:<major>:<minor> and submit the hash to the
+    // contract. The signature obscures the value within the contract but provides a way for racers 
+    // to prove they received the signal by invoking the function `isValidStartSignal` (below, in
+    // the `internal methods` section)
+    function submitSignedBeaconId( uint8 v, bytes32 r, bytes32 s) public
+        startSignalUnset()
+        canSignBeaconId()
+        {
+            signedStartSignal.v = v;
+            signedStartSignal.r = r;
+            signedStartSignal.s = s;
+
         }
 
     // Called by user to commit to race
@@ -252,6 +295,19 @@ contract Race {
     // -------------------------------  Internal Methods   --------------------------------
     // ------------------------------------------------------------------------------------
 
+    // Returns true if `receivedStartSignal` (a string w/ form <uuid>:<major>:<minor>) is the 
+    // same value as the signal signed by the starting node on broadcast. False otherwise. 
+    function isValidStartSignal( string receivedStartSignal ) internal returns (bool result){
+
+        var signal = sha256(receivedStartSignal);
+        var startNode = ecrecover(signal, signedStartSignal.v, signedStartSignal.r, signedStartSignal.s);
+
+        if (startNode == stateMap[0].node)
+            return true;
+        else
+            return false;
+    }
+
     // Returns false if 'racer' has finished later than anyone else, true otherwise
     function isFirst(address racer) internal returns (bool result) {
 
@@ -291,11 +347,11 @@ contract Race {
         node.requestMessagePublication( stateMap[0].node, uuid, message, duration);
     }
 
-    function broadcastBeacon( string uuid ){
+    function broadcastBeacon(){
 
         var contractAddress = stateMap[0].eventContract;
         AnimistEvent node = AnimistEvent(contractAddress);
-        node.requestBeaconBroadcast( stateMap[0].node, uuid, address(this));
+        node.requestBeaconBroadcast( stateMap[0].node, startSignal, address(this));
     }
 }
 
