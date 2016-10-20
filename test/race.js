@@ -128,11 +128,19 @@ contract('Race', function(accounts) {
 
         describe('submitSignedBeaconId(uint8 v, bytes32 r, bytes32 s)', () => {
 
+            // There's weird stuff here about the way web3 translates the signature
+            // from string into bytes32. . . isValidStartingSignal unit tests
+            // show that formatting v,r,s as below results in successful address
+            // recovery within a Solidity function. 
+            
             let msg = 'B4D5272F-D4AD-4903-A6F5-37032700EB7D:64444:63333';
             let msgHash = util.addHexPrefix(util.sha3(msg).toString('hex'));
             let signed = web3.eth.sign(node, msgHash);
             let sig = util.fromRpcSig(signed);
 
+            sig.r = util.addHexPrefix(sig.r.toString('hex'));
+            sig.s = util.addHexPrefix(sig.s.toString('hex'));
+            
             it('should assign v, r, s to the "signedStartSignal" obj', (done)=> {
 
                 race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node } ).then(()=>{
@@ -439,10 +447,6 @@ contract('Race', function(accounts) {
             
             it('should return true if input is the same string as the one the node signed', ()=>{
 
-                // Sign with 'node' (correct)
-                let signed = web3.eth.sign(node, msgHash);
-                let sig = util.fromRpcSig(signed);
-                
                 // Covert to hex string for correct bytes32 translation
                 sig.r = util.addHexPrefix(sig.r.toString('hex'));
                 sig.s = util.addHexPrefix(sig.s.toString('hex'));
@@ -453,10 +457,6 @@ contract('Race', function(accounts) {
             });
 
             it('should return false if input is different than the one the node signed', ()=>{
-
-                // Sign with node
-                let signed = web3.eth.sign(racerA, msgHash);
-                let sig = util.fromRpcSig(signed);
                 
                 // Covert to hex string for correct bytes32 translation
                 sig.r = util.addHexPrefix(sig.r.toString('hex'));
