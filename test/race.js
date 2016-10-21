@@ -514,19 +514,19 @@ contract('Race', function(accounts) {
                 let now = web3.eth.blockNumber;
                 let uuid = "B4D5272F-D4AD-4903-A6F5-37032700EB7D";
                 let message = "Hello";
-                let  duration = 30000;
+                let expires = 30000;
 
                 eventContract.LogMessagePublicationRequest(null, {fromBlock: now, toBlock: now + 1}, (err, res) => {
 
                     res.args.node.should.equal(node);
                     res.args.uuid.should.equal(uuid);
                     res.args.message.should.equal(message);
-                    res.args.duration.toNumber().should.equal(duration);
+                    res.args.expires.toNumber().should.equal(expires);
                     done();
                    
                 });
                 // Run
-                race.testPublishMessage(uuid, message, duration, {from: racerA});
+                race.testPublishMessage(uuid, message, expires, {from: racerA});
             });
         });
 

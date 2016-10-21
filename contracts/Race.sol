@@ -352,11 +352,11 @@ contract Race {
         }
     }
 
-    function publishMessage(string uuid, string message, uint32 duration) internal {
+    function publishMessage(string uuid, string message, uint32 expires) internal {
 
         var contractAddress = stateMap[0].eventContract;
         AnimistEvent node = AnimistEvent(contractAddress);
-        node.requestMessagePublication( stateMap[0].node, uuid, message, duration);
+        node.requestMessagePublication( stateMap[0].node, uuid, message, expires);
     }
 
     function broadcastBeacon(){

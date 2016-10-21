@@ -7,7 +7,7 @@ Use within an Animist contract:
     address contract_address = some_nodes_AnimistEvent_address;
     AnimistEvent instance = AnimistEvent(contract_address);
     instance.register(node_address, account_address, address(this));
-    instance.broadcast(node_address, uint value, uint duration);
+    instance.broadcast(node_address, uint value, uint expires);
 
 Security issues: spamming a node. */
 
@@ -28,9 +28,9 @@ contract AnimistEvent {
      * @param {Address} node:  (indexed) Address of the node that should publish requested message.
      * @param {String}  uuid: v4 UUID string which will be the identity of the characteristic `message` is broadcast from
      * @param {String}  message: a string with max length 66 (hex prefixed address size) to broadcast from `channel`
-     * @param {Number}  duration: length of time in ms to broadcast `message.` Max value is 4294967295, or ~50 days.
+     * @param {Number}  expires: Expiration date of broadcast (in ms from Epoch) 
      */
-    event LogMessagePublicationRequest( address indexed node, string uuid, string message, uint32 duration);
+    event LogMessagePublicationRequest( address indexed node, string uuid, string message, uint32 expires);
 
     /*
      * @event LogBeaconBroadcastRequest
@@ -53,9 +53,9 @@ contract AnimistEvent {
         LogPresenceVerificationRequest(node, account, contractAddress);
     }
 
-    function requestMessagePublication(address node, string uuid, string message, uint32 duration){
+    function requestMessagePublication(address node, string uuid, string message, uint32 expires){
 
-        LogMessagePublicationRequest(node, uuid, message, duration);
+        LogMessagePublicationRequest(node, uuid, message, expires);
     }
 
     function requestBeaconBroadcast(address node, string uuid, address contractAddress ){
