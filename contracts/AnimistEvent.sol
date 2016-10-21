@@ -30,7 +30,7 @@ contract AnimistEvent {
      * @param {String}  message: a string with max length 66 (hex prefixed address size) to broadcast from `channel`
      * @param {Number}  expires: Expiration date of broadcast (in ms from Epoch) 
      */
-    event LogMessagePublicationRequest( address indexed node, string uuid, string message, uint32 expires);
+    event LogMessagePublicationRequest( address indexed node, string uuid, string message, uint64 expires);
 
     /*
      * @event LogBeaconBroadcastRequest
@@ -53,7 +53,7 @@ contract AnimistEvent {
         LogPresenceVerificationRequest(node, account, contractAddress);
     }
 
-    function requestMessagePublication(address node, string uuid, string message, uint32 expires){
+    function requestMessagePublication(address node, string uuid, string message, uint64 expires){
 
         LogMessagePublicationRequest(node, uuid, message, expires);
     }
