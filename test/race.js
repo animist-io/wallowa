@@ -51,7 +51,7 @@ contract('Race', function(accounts) {
     });
 
     beforeEach((done)=>{
-        //race = Race_test.deployed();
+
         // Wipe everything used
         Promise.all([
 
@@ -71,7 +71,8 @@ contract('Race', function(accounts) {
             race.setClientEndBlock(racerB, utils.toAddress(0), {from: node, gas: 3141592}),
             race.setClientAuthority(racerA, utils.toAddress(0), {from: node, gas: 3141592}),
             race.setClientAuthority(racerA, utils.toAddress(0), {from: node, gas: 3141592}),
-            race.setSignedStartSignal({from: node, gas: 3141592})
+            race.setSignedStartSignal({from: node, gas: 3141592}),
+            race.setMessageDelivered(false, {from: node, gas: 3141592})
 
         ]).then((results) => {
             done();
@@ -82,9 +83,6 @@ contract('Race', function(accounts) {
     // -------------------------------  Public Methods   ----------------------------------
     // ------------------------------------------------------------------------------------
 
-    /*describe.only('before', ()=> {
-        it('should make it through the before block', ()=> {})
-    })*/
     describe('Methods', ()=>{
 
         describe('verifyPresence(address client, uint64 time)', () => {
@@ -468,7 +466,59 @@ contract('Race', function(accounts) {
                     return race.testIsValidStartSignal(badMsg).then( val => val.should.be.false )
                 });
             });
-        })
+        });
+
+        describe('isAuthorizedToReadMessage', () => {
+
+            it('should return true if visitor is authorized client and method caller is node', ()=>{
+               return race.setAuthorizedClient( racerA, {from: node, gas: 3141592 } ).then(()=>{
+                    return race.isAuthorizedToReadMessage(racerA, 'some message', {from: node})
+                        .then( val => val.should.be.true )
+                }); 
+            });
+
+            it('should return false if method caller is NOT node', () => {
+                return race.setAuthorizedClient( racerA, {from: node, gas: 3141592 } ).then(()=>{
+                    return race.isAuthorizedToReadMessage(racerA, 'some message', {from: racerB})
+                        .then( val => val.should.be.false )
+                }); 
+            });
+
+            it('should return false if authorizedClient is not "visitor" ', ()=>{
+                return race.setAuthorizedClient( racerA, {from: node, gas: 3141592 } ).then(()=>{
+                    return race.isAuthorizedToReadMessage(racerB, 'some message', {from: node})
+                        .then( val => val.should.be.false )
+                });
+            })
+
+        });
+
+        describe( 'confirmMessageDelivery', () => {
+
+            it('should set the delivered flag to true if method caller is node and visitor is authorizedClient', ()=>{
+                return race.setAuthorizedClient( racerA, {from: node, gas: 3141592 } ).then(()=>{
+                    return race.confirmMessageDelivery( racerA, 'message', 12345, {from: node, gas: 3141592 } ).then(()=>{
+                        return race.getMessageDelivered().then( val => val.should.be.true )
+                    });
+                });
+            });
+
+            it('should NOT toggle the delivered flag if method caller is NOT node and visitor is authorizedClient', ()=>{
+                return race.setAuthorizedClient( racerA, {from: node, gas: 3141592 } ).then(()=>{
+                    return race.confirmMessageDelivery( racerA, 'message', 12345, {from: racerB, gas: 3141592 } ).then(()=>{
+                        return race.getMessageDelivered().then( val => val.should.be.false )
+                    });
+                });
+            });
+
+            it('should NOT toggle the delivered flag if method caller is node and visitor is NOT authorizedClient', ()=>{
+                return race.setAuthorizedClient( racerA, {from: node, gas: 3141592 } ).then(()=>{
+                    return race.confirmMessageDelivery( racerB, 'message', 12345, {from: node, gas: 3141592 } ).then(()=>{
+                        return race.getMessageDelivered().then( val => val.should.be.false )
+                    });
+                });
+            });
+        });
 
         describe('broadcastCommit()', ()=>{
 

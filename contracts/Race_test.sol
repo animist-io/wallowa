@@ -87,6 +87,10 @@ contract Race_test is Race {
         authorizedClient = racer;
     }
 
+    function setMessageDelivered( bool val ){
+        messageDelivered = val;
+    }
+    
     function getMessageDelivered() constant returns (bool result){
         return messageDelivered;
     }
@@ -108,10 +112,6 @@ contract Race_test is Race {
     function testBroadcastCommit(){
         broadcastCommit();
     }
-
-    
-
-    
 
     // -------------------- EVENTS --------------------------
     function testPublishMessage( string uuid, string message, uint32 duration, address contractAddress ){
