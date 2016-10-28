@@ -1,6 +1,7 @@
 // accounts[0] = client
 // accounts[1] = node
 // accounts[2] = deployed AnimistEvents contract
+pragma solidity 0.4.3;
 
 import 'AnimistEvent.sol';
 

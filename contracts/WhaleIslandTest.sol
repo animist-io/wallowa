@@ -1,4 +1,6 @@
 // Test contract deployed by unit tests to validate mgmt of contract API endpoints.
+    pragma solidity 0.4.3;
+    
     contract WhaleIslandTest{
 
         struct SignedBeacon {           // EC signature of beacon-signal emitted by first node as a start signal. 

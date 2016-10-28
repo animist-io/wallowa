@@ -9,6 +9,7 @@
 // deployed on a race by race basis. 
 
 // (See the README at: animist-io/wallowa for a more detailed description) 
+pragma solidity ^0.4.3;
 
 import 'AnimistEvent.sol';
 
@@ -84,7 +85,7 @@ contract Race {
     
         var next = racers[client].state + 1;
         if (msg.sender != stateMap[next].node) throw;
-        _
+        _;
     }
 
     // Is client registered as a racer? 
@@ -92,13 +93,13 @@ contract Race {
     // Makes membership req. explicit for the contract reader. ) 
     modifier clientIsRacer(address client) {
         if (racers[client].account == address(0)) throw;
-        _
+        _;
     }
 
     // Can the client step forward (or are they finished)?
     modifier clientCanStep(address client){
         if ( racers[client].state >= endState ) throw;
-        _
+        _;
     }
 
     // --------- (Public: Racer ) ------------------
@@ -106,38 +107,38 @@ contract Race {
     // Is the caller registered as a racer ?
     modifier senderIsRacer() {
         if (racers[msg.sender].account == address(0) ) throw;
-        _ 
+        _; 
     }
 
     // Is caller unregistered for this race? 
     modifier senderUnknown {
         if (racers[msg.sender].account != address(0) ) throw;
-        _
+        _;
     }
 
     // Does the caller have more steps to take?
     modifier senderCanStep {
         if ( racers[msg.sender].state >= endState ) throw;
-        _
+        _;
     }
 
     // Has caller's presence been verified by the required node?
     modifier senderIsVerified {
         var next = racers[msg.sender].state + 1; 
         if ( racers[msg.sender].verifier != stateMap[next].node) throw;
-        _
+        _;
     }
 
     // Is caller permitted to sign their own tx ?
     modifier senderIsAuthorized {
         if (racers[msg.sender].authority != msg.sender ) throw;
-        _
+        _;
     }
 
     // Is caller at the end state?
     modifier senderIsFinished{
         if( racers[msg.sender].state != endState) throw;
-        _
+        _;
     }
 
     // Is current block later than the block racer finished on?
@@ -145,26 +146,26 @@ contract Race {
     //  guarantees about what order tx's will be processed in the same block )
     modifier senderCanCheckResults(){
         if( racers[msg.sender].endBlock >= block.number) throw;
-        _
+        _;
     }
 
     // --------------- ( Public: General ) --------------------------
     // Is contract open for new contestants to register ?
     modifier contractIsOpen {
         if( openContract != true ) throw;
-        _
+        _;
     }
 
     // Is start signal uninitialized ?
     modifier startSignalUnset {
         if ( signedStartSignal.r != bytes32(0) ) throw;
-        _
+        _;
     }
 
     // Is caller the first node in the race? i.e. the node authorized to fire the start signal.
     modifier canSignBeaconId {
         if ( msg.sender != stateMap[0].node ) throw;
-        _
+        _;
     }
 
     // ------------------------------------------------------------------------------------
@@ -352,11 +353,11 @@ contract Race {
         }
     }
 
-    function publishMessage(string uuid, string message, uint32 expires) internal {
+    function publishMessage(string uuid, string message, uint32 expires, address contractAddress_ ) internal {
 
         var contractAddress = stateMap[0].eventContract;
         AnimistEvent node = AnimistEvent(contractAddress);
-        node.requestMessagePublication( stateMap[0].node, uuid, message, expires);
+        node.requestMessagePublication( stateMap[0].node, uuid, message, expires, contractAddress_);
     }
 
     function broadcastBeacon(){

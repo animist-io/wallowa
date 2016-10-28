@@ -10,18 +10,19 @@ Use within an Animist contract:
     instance.broadcast(node_address, uint value, uint expires);
 
 Security issues: spamming a node. */
+pragma solidity ^0.4.3;
 
 contract AnimistEvent {
 
     /*
      * @event LogProximityDetectionRequest
-     * @param {Address} node:  (indexed) Address of the node that should proximity detect the client
-     * @param {Address} account: (indexed) Account address of the client to be proximity detected
+     * @param {Address} node:  Address of the node that should proximity detect the client
+     * @param {Address} account:  Account address of the client to be proximity detected
      * @param {Address} contractAddress: Address of the contract whose verifyPresence method will be executed 
      *                                   to authenticate client's presence at the node.
      *
      */
-    event LogPresenceVerificationRequest( address indexed node, address indexed account, address indexed contractAddress);
+    event LogPresenceVerificationRequest( address indexed node, address account, address contractAddress);
     
    /*
      * @event LogMessagePublicationRequest
@@ -29,8 +30,9 @@ contract AnimistEvent {
      * @param {String}  uuid: v4 UUID string which will be the identity of the characteristic `message` is broadcast from
      * @param {String}  message: a string with max length 66 (hex prefixed address size) to broadcast from `channel`
      * @param {Number}  expires: Expiration date of broadcast (in ms from Epoch) 
+     * @param {Address} contractAddress: contract to check client authorization by and write delivery confirmation to. 
      */
-    event LogMessagePublicationRequest( address indexed node, string uuid, string message, uint64 expires);
+    event LogMessagePublicationRequest( address indexed node, string uuid, string message, uint64 expires, address contractAddress );
 
     /*
      * @event LogBeaconBroadcastRequest
@@ -47,15 +49,16 @@ contract AnimistEvent {
     // ------------------------------------------  Event wrappers ------------------------------------------------------
     // NB: There will eventually need to be logic here for compensating the node for providing these services. Some sort
     // of payment will be sent to these methods.
+    function stub() constant {}
 
-    function requestPresenceVerification(address node, address account, address contractAddress) {
+    function requestPresenceVerification(address node, address account, address contractAddress) public payable {
 
         LogPresenceVerificationRequest(node, account, contractAddress);
     }
 
-    function requestMessagePublication(address node, string uuid, string message, uint64 expires){
+    function requestMessagePublication(address node, string uuid, string message, uint64 expires, address contractAddress ){
 
-        LogMessagePublicationRequest(node, uuid, message, expires);
+        LogMessagePublicationRequest(node, uuid, message, expires, contractAddress );
     }
 
     function requestBeaconBroadcast(address node, string uuid, address contractAddress ){

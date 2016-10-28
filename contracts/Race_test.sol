@@ -3,12 +3,17 @@
 
 // This file constructs solidity wrappers for the internal & modifier fn's in Race.sol
 // Also implements some useful setters for unit tests. Extends race.
+pragma solidity ^0.4.3;
 
 import 'AnimistEvent.sol';
 import 'Race.sol';
 
 
 contract Race_test is Race {
+
+    // Variables for Events tests
+    address authorizedClient;
+    bool messageDelivered;
 
     // Unit tests currently over write all the values.  
     function Race_test(){
@@ -21,8 +26,13 @@ contract Race_test is Race {
         stateMap[1].node = nodeAddr;
     }
 
-    // -------------------  SETTERS ----------------------
-    function setContractOpen(bool val){
+    // ------------------- TEST SETTERS ----------------------
+    function addRacer() public {
+        racers[msg.sender] = Racer( msg.sender, msg.sender, 0, address(0), uint64(0), uint(0));
+        racerList.push(msg.sender);
+    }
+
+    function setContractOpen(bool val) public {
         openContract = val;
     }
 
@@ -73,6 +83,14 @@ contract Race_test is Race {
         delete racerList[racerList.length - 1]; 
     }
 
+    function setAuthorizedClient( address racer){
+        authorizedClient = racer;
+    }
+
+    function getMessageDelivered() constant returns (bool result){
+        return messageDelivered;
+    }
+
 
 
     // --------- INTERNAL FUNCTION WRAPPERS ----------------
@@ -91,16 +109,31 @@ contract Race_test is Race {
         broadcastCommit();
     }
 
-    function testPublishMessage( string uuid, string message, uint32 duration){
-        publishMessage(uuid, message, duration);
+    
+
+    
+
+    // -------------------- EVENTS --------------------------
+    function testPublishMessage( string uuid, string message, uint32 duration, address contractAddress ){
+        publishMessage(uuid, message, duration, contractAddress );
     }
 
     function testBroadcastBeacon(){
         broadcastBeacon();
     }
 
-    // -------------------- EVENTS --------------------------
+    function isAuthorizedToReadMessage( address visitor, string uuid ) constant returns (bool result){
+        if (msg.sender == stateMap[0].node && visitor == authorizedClient )
+            return true;
+        else
+            return false;
+    }
 
+    // Method node will invoke when it allows client to read message from characteristic.
+    function confirmMessageDelivery( address visitor, string uuid, uint64 time){
+        if (msg.sender == stateMap[0].node && visitor == authorizedClient )
+            messageDelivered = true;
+    } 
     
     // ------------  MODIFIER TEST WRAPPERS -----------------
     // All tests return true if fn makes it through the gate.
@@ -180,7 +213,5 @@ contract Race_test is Race {
         constant returns (bool result){
             return true;
         }
-    
-
 }
 

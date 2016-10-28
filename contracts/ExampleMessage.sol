@@ -1,5 +1,6 @@
 // account[0] = node
 // account[1] = deployed AnimistEvent contract
+pragma solidity 0.4.3;
 
 import 'AnimistEvent.sol';
 
@@ -21,6 +22,6 @@ contract ExampleMessage {
 
         // Instantiate AnimistEvent contract request broadcast  
         api = AnimistEvent(animistAddress);        
-        api.requestMessagePublication(node, uuid, message, duration);    
+        api.requestMessagePublication(node, uuid, message, duration, address(this));    
     }
 }

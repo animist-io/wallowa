@@ -40,8 +40,8 @@ contract('Race', function(accounts) {
         eventContract = AnimistEvent.deployed();
 
         Promise.all([
-            race.commitSelf({from: racerA}),
-            race.commitSelf({from: racerB}),
+            race.addRacer({from: racerA, gas: 3141592}),
+            race.addRacer({from: racerB, gas: 3141592}),
             race.endState.call(node),
 
         ]).then((results) => {
@@ -51,26 +51,27 @@ contract('Race', function(accounts) {
     });
 
     beforeEach((done)=>{
-        
+        //race = Race_test.deployed();
         // Wipe everything used
         Promise.all([
-            race.setContractOpen(true, {from: node}),
-            race.setStateMap(node, 0, {from: node}),
-            race.setStateMap(node, 1, {from: node}),
-            race.setEventContract( eventContract.address, 0, {from: node}),
-            race.setEventContract( eventContract.address, 1, {from: node}),
-            race.setContractEndState(endState, {from: node}), 
-            race.setClientState(racerA, 0, {from: node}),
-            race.setClientState(racerB, 0, {from: node}),
-            race.setClientTimeVerified(racerA, 0, {from: node}),
-            race.setClientTimeVerified(racerB, 0, {from: node}),
-            race.setClientVerifier(racerA, utils.toAddress(0), {from: node}),
-            race.setClientVerifier(racerB, utils.toAddress(0), {from: node}),
-            race.setClientEndBlock(racerA, utils.toAddress(0), {from: node}),
-            race.setClientEndBlock(racerB, utils.toAddress(0), {from: node}),
-            race.setClientAuthority(racerA, utils.toAddress(0), {from: node}),
-            race.setClientAuthority(racerA, utils.toAddress(0), {from: node}),
-            race.setSignedStartSignal({from: node})
+
+            race.setContractOpen(true, {from: node, gas: 311592 }),
+            race.setStateMap(node, 0, {from: node, gas: 3141592}),
+            race.setStateMap(node, 1, {from: node, gas: 3141592}),
+            race.setEventContract( eventContract.address, 0, {from: node, gas: 3141592}),
+            race.setEventContract( eventContract.address, 1, {from: node, gas: 3141592}),
+            race.setContractEndState(endState, {from: node, gas: 3141592}), 
+            race.setClientState(racerA, 0, {from: node, gas: 3141592}),
+            race.setClientState(racerB, 0, {from: node, gas: 3141592}),
+            race.setClientTimeVerified(racerA, 0, {from: node, gas: 3141592}),
+            race.setClientTimeVerified(racerB, 0, {from: node, gas: 3141592}),
+            race.setClientVerifier(racerA, utils.toAddress(0), {from: node, gas: 3141592}),
+            race.setClientVerifier(racerB, utils.toAddress(0), {from: node, gas: 3141592}),
+            race.setClientEndBlock(racerA, utils.toAddress(0), {from: node, gas: 3141592}),
+            race.setClientEndBlock(racerB, utils.toAddress(0), {from: node, gas: 3141592}),
+            race.setClientAuthority(racerA, utils.toAddress(0), {from: node, gas: 3141592}),
+            race.setClientAuthority(racerA, utils.toAddress(0), {from: node, gas: 3141592}),
+            race.setSignedStartSignal({from: node, gas: 3141592})
 
         ]).then((results) => {
             done();
@@ -81,18 +82,21 @@ contract('Race', function(accounts) {
     // -------------------------------  Public Methods   ----------------------------------
     // ------------------------------------------------------------------------------------
 
+    /*describe.only('before', ()=> {
+        it('should make it through the before block', ()=> {})
+    })*/
     describe('Methods', ()=>{
 
         describe('verifyPresence(address client, uint64 time)', () => {
             it('should set racers verifier field to the address of authenticating node', () =>{
-                return race.verifyPresence(racerA, 12345, {from: node}).then(() => {
+                return race.verifyPresence(racerA, 12345, {from: node, gas: 3141592}).then(() => {
                     return race.getVerifier.call(racerA).then( val => val.should.equal(node) );
                 })
             });
 
             it('should set racers timeVerified field to passed value', () =>{
                 let expected = 12345;
-                return race.verifyPresence(racerA, expected, {from: node}).then(() => {
+                return race.verifyPresence(racerA, expected, {from: node, gas: 3141592}).then(() => {
                     return race.getTimeVerified.call(racerA)
                         .then(result => parseInt(result).should.equal(expected))
                 })
@@ -102,8 +106,8 @@ contract('Race', function(accounts) {
 
             // where: clientIsRacer passes, nodeCanVerify passes, clientCanStep fails  
             it('should throw if the client cannot step', () => {
-                return race.setClientState(racerA, endState, {from: node}).then(() => {
-                    return race.verifyPresence(racerA, 12345, {from: node})
+                return race.setClientState(racerA, endState, {from: node, gas: 3141592}).then(() => {
+                    return race.verifyPresence(racerA, 12345, {from: node, gas: 3141592})
                         .then( val => false.should.be.true )
                         .catch( err => err.should.be.empty )  
                 })
@@ -112,7 +116,7 @@ contract('Race', function(accounts) {
             // where: nodeCanVerifyPasses, clientCanStep passes, clientIsRacer fails
             it('should throw if the client has not committed to the race', () => {
                 let bad_racer = accounts[4];
-                return race.verifyPresence(bad_racer, 12345, {from: node})
+                return race.verifyPresence(bad_racer, 12345, {from: node, gas: 3141592})
                     .then( val => false.should.be.true )
                     .catch( err => err.should.be.empty )  
             });
@@ -120,7 +124,7 @@ contract('Race', function(accounts) {
             // where: nodeCanVerifyPasses, clientIsRacerPasses, racerCanStep fails
             it('should throw if node is NOT specified to auth for racers current step', ()=>{
                 let bad_node = accounts[4];
-                return race.verifyPresence(racerA, 12345, {from: bad_node})
+                return race.verifyPresence(racerA, 12345, {from: bad_node, gas: 3141592})
                     .then( val => false.should.be.true )
                     .catch( err => err.should.be.empty )           
             });
@@ -143,7 +147,7 @@ contract('Race', function(accounts) {
             
             it('should assign v, r, s to the "signedStartSignal" obj', (done)=> {
 
-                race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node } ).then(()=>{
+                race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node, gas: 3141592 } ).then(()=>{
 
                     Promise.all([
                         race.getSignedStartSignal_v(),
@@ -165,7 +169,7 @@ contract('Race', function(accounts) {
 
             it('should fail if caller is not the starting node in the race', ()=>{
 
-                return race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: racerA } )
+                return race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: racerA, gas: 3141592 } )
                     .then( () => false.should.be.true )
                     .catch( err =>  err.should.be.empty );
                 
@@ -174,8 +178,8 @@ contract('Race', function(accounts) {
             it('should fail if signedStartSignal is already set', ()=>{
 
 
-                return race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node } )
-                    .then( () => race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node } )
+                return race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node, gas: 3141592 } )
+                    .then( () => race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node, gas: 3141592 } )
                     .then( () => false.should.be.true )
                     .catch( err =>  err.should.be.empty ))
             });
@@ -185,7 +189,7 @@ contract('Race', function(accounts) {
 
             it('should register the racer with the contract correctly', (done) => {
                 let racerC = accounts[3];
-                race.commitSelf({from: racerC }).then(() => {
+                race.commitSelf({from: racerC, gas: 3141592 }).then(() => {
                     
                     Promise.all([
                         race.getAccount.call(racerC ),
@@ -212,7 +216,7 @@ contract('Race', function(accounts) {
                 let racerC = accounts[3];
                 chai.spy.on(race, 'broadcastCommit');
                 
-                race.commitSelf({from: racerC}).then(()=>{
+                race.commitSelf({from: racerC, gas: 3141592}).then(()=>{
                     race.broadcastCommit.should.have.been.called;
                     race.deleteLastRacer(racerC).then(() => { done() }); // Clean up
                 });
@@ -223,7 +227,7 @@ contract('Race', function(accounts) {
             // where: contractIsOpen passes, senderUnknown fails   
             it('should throw if the sender has already committed to race', () => {
                 // Racer A gets committed by default in the before fn of this test
-                return race.commitSelf({from: racerA })
+                return race.commitSelf({from: racerA, gas: 3141592 })
                     .then( val => false.should.be.true )
                     .catch( err => err.should.be.empty )  
             });
@@ -232,8 +236,8 @@ contract('Race', function(accounts) {
             it('should throw if the contract is closed to new registrants', () => {
                 let racerC = accounts[3];
 
-                return race.setContractOpen(false, {from: node}).then(() => {
-                    return race.commitSelf({from: racerC }) 
+                return race.setContractOpen(false, {from: node, gas: 3141592}).then(() => {
+                    return race.commitSelf({from: racerC, gas: 3141592 }) 
                         .then( val => false.should.be.true )
                         .catch( err => err.should.be.empty )  
                 })
@@ -244,8 +248,8 @@ contract('Race', function(accounts) {
 
             it('should advance the racer one step and reset their verification status', (done)=>{      
                 // Apparently these can't all be called sequentially in a Promise All ?
-                race.setClientVerifier(racerA, node, {from: node}).then(() => {
-                    race.advanceSelf({from: racerA}).then((result) => {
+                race.setClientVerifier(racerA, node, {from: node, gas: 3141592}).then(() => {
+                    race.advanceSelf({from: racerA, gas: 3141592}).then((result) => {
                         Promise.all([ 
                             race.getState.call(racerA),
                             race.getVerifier.call(racerA)
@@ -261,8 +265,8 @@ contract('Race', function(accounts) {
             // Racer advances from 0 (default) to 1, endState is 1
             it('should set racers endBlock field to current block if they finished', (done)=>{      
         
-                race.setClientVerifier(racerA, node, {from: node}).then(() => {
-                    race.advanceSelf({from: racerA}).then(() => {
+                race.setClientVerifier(racerA, node, {from: node, gas: 3141592}).then(() => {
+                    race.advanceSelf({from: racerA, gas: 3141592}).then(() => {
                         race.getEndBlock.call(racerA).then((result) => {
                             parseInt(result).should.equal(web3.eth.blockNumber);
                             done();
@@ -275,10 +279,10 @@ contract('Race', function(accounts) {
             it('should not alter racers endBlock field if they havent finished', (done)=>{      
        
                 Promise.all([
-                    race.setClientVerifier(racerA, node, {from: node}),
-                    race.setContractEndState(2, {from: node}) 
+                    race.setClientVerifier(racerA, node, {from: node, gas: 3141592}),
+                    race.setContractEndState(2, {from: node, gas: 3141592}) 
                 ]).then(() => {
-                    race.advanceSelf({from: racerA}).then(() => {
+                    race.advanceSelf({from: racerA, gas: 3141592}).then(() => {
                         race.getEndBlock.call(racerA).then((result) => {
                             parseInt(result).should.equal(0);
                             done();
@@ -292,7 +296,7 @@ contract('Race', function(accounts) {
             // where: senderIsRacer fails - other mods would fail too, but it's first.
             it('should throw if the client has not committed to the race', () => {
                 let bad_racer = accounts[4];
-                return race.advanceSelf({from: racerA})
+                return race.advanceSelf({from: racerA, gas: 3141592})
                     .then( val => false.should.be.true )
                     .catch( err => err.should.be.empty )       
             });
@@ -300,10 +304,10 @@ contract('Race', function(accounts) {
             // where: senderIsRacer passes, senderIsVerified passes, senderCanStep fails
             it('should throw if the client cannot step', () => {
                 return Promise.all([
-                    race.setClientVerifier(racerA, node, {from: node}),
-                    race.setClientState(racerA, endState, {from: node})      
+                    race.setClientVerifier(racerA, node, {from: node, gas: 3141592}),
+                    race.setClientState(racerA, endState, {from: node, gas: 3141592})      
                 ]).then(() => {
-                    return race.advanceSelf({from: racerA})
+                    return race.advanceSelf({from: racerA, gas: 3141592})
                         .then( val => false.should.be.true )
                         .catch( err => err.should.be.empty ) 
                 });
@@ -312,13 +316,11 @@ contract('Race', function(accounts) {
 
             // where: senderCanStep passes, senderIsRacer passes, senderIsVerified fails
             it ('should throw if sender has not been verified by the correct node', () => {
-                return race.setClientVerifier(racerA, utils.toAddress(0), {from: node}).then(() => {
-                    return race.advanceSelf({from: racerA })
+                return race.setClientVerifier(racerA, utils.toAddress(0), {from: node, gas: 3141592}).then(() => {
+                    return race.advanceSelf({from: racerA, gas: 3141592 })
                         .then( val => false.should.be.true )
                         .catch( err => err.should.be.empty )  
-                })
-                
-                        
+                })             
             });
         });
 
@@ -330,10 +332,10 @@ contract('Race', function(accounts) {
                 chai.spy.on(race, 'isFirst')
                 
                 return Promise.all([
-                    race.setClientEndBlock(racerA, now, {from: node}),
-                    race.setClientState(racerA, endState, {from: node}),
+                    race.setClientEndBlock(racerA, now, {from: node, gas: 3141592}),
+                    race.setClientState(racerA, endState, {from: node, gas: 3141592}),
                 ]).then(() => {
-                    return race.rewardSelf({from: racerA }).then( results => race.isFirst.should.have.been.called )
+                    return race.rewardSelf({from: racerA, gas: 3141592 }).then( results => race.isFirst.should.have.been.called )
                 })
             });
 
@@ -342,7 +344,7 @@ contract('Race', function(accounts) {
             // Racer DNE - there's nothing to set here . . . 
             it('should throw if the client has not committed to the race', () => {
                 let bad_racer = accounts[4];
-                return race.rewardSelf({from: bad_racer})
+                return race.rewardSelf({from: bad_racer, gas: 3141592})
                     .then( val => false.should.be.true )
                     .catch( err => err.should.be.empty )        
             });
@@ -351,8 +353,8 @@ contract('Race', function(accounts) {
             it ('should throw if sender has not finished', () => {
                 let now = web3.eth.blockNumber;
                 
-                return race.setClientEndBlock(racerA, now, {from: node}).then( () => {
-                    return race.rewardSelf({from: racerA })
+                return race.setClientEndBlock(racerA, now, {from: node, gas: 3141592}).then( () => {
+                    return race.rewardSelf({from: racerA, gas: 3141592 })
                         .then( val => false.should.be.true )
                         .catch( err => err.should.be.empty ) 
                 });    
@@ -367,11 +369,11 @@ contract('Race', function(accounts) {
                 let now = web3.eth.blockNumber + 3; 
         
                 return Promise.all([
-                    race.setClientState(racerA, endState, {from: node}),
-                    race.setClientEndBlock(racerA, now, {from: node}),
+                    race.setClientState(racerA, endState, {from: node, gas: 3141592}),
+                    race.setClientEndBlock(racerA, now, {from: node, gas: 3141592}),
                     
                 ]).then( () => {
-                    return race.rewardSelf({from: racerA })
+                    return race.rewardSelf({from: racerA, gas: 3141592 })
                         .then( val => false.should.be.true )
                         .catch( err => err.should.be.empty ) 
                 })
@@ -391,8 +393,8 @@ contract('Race', function(accounts) {
 
                 // Set up racerA to be only winnner
                 return Promise.all([
-                    race.setClientTimeVerified(racerA, now, {from: node}),
-                    race.setClientEndBlock(racerA, endBlock, {from: node}),    
+                    race.setClientTimeVerified(racerA, now, {from: node, gas: 3141592}),
+                    race.setClientEndBlock(racerA, endBlock, {from: node, gas: 3141592}),    
                 ]).then(() => { 
                     return race.testIsFirst(racerA).then( result => result.should.be.true )
                 })
@@ -406,10 +408,10 @@ contract('Race', function(accounts) {
 
                 // Set up racerA to finish, racerB to win
                 return Promise.all([
-                    race.setClientTimeVerified(racerA, now, {from: node}),
-                    race.setClientEndBlock(racerA, endBlock, {from: node}),
-                    race.setClientTimeVerified(racerB, win, {from: node}),
-                    race.setClientEndBlock(racerB, endBlock, {from: node}),
+                    race.setClientTimeVerified(racerA, now, {from: node, gas: 3141592}),
+                    race.setClientEndBlock(racerA, endBlock, {from: node, gas: 3141592}),
+                    race.setClientTimeVerified(racerB, win, {from: node, gas: 3141592}),
+                    race.setClientEndBlock(racerB, endBlock, {from: node, gas: 3141592}),
                     
                 ]).then(() => {
                     return race.testIsFirst(racerB).then( result => result.should.be.true )
@@ -425,10 +427,10 @@ contract('Race', function(accounts) {
 
                 // Set up racerA to finish, racerB to win
                 return Promise.all([
-                    race.setClientTimeVerified(racerA, now, {from: node}),
-                    race.setClientEndBlock(racerA, endBlock, {from: node}),
-                    race.setClientTimeVerified(racerB, win, {from: node}),
-                    race.setClientEndBlock(racerB, endBlock, {from: node}),       
+                    race.setClientTimeVerified(racerA, now, {from: node, gas: 3141592}),
+                    race.setClientEndBlock(racerA, endBlock, {from: node, gas: 3141592}),
+                    race.setClientTimeVerified(racerB, win, {from: node, gas: 3141592}),
+                    race.setClientEndBlock(racerB, endBlock, {from: node, gas: 3141592}),       
                 ]).then(() => {
                     return race.testIsFirst(racerA).then( result => result.should.be.false )
                 });
@@ -451,7 +453,7 @@ contract('Race', function(accounts) {
                 sig.r = util.addHexPrefix(sig.r.toString('hex'));
                 sig.s = util.addHexPrefix(sig.s.toString('hex'));
                 
-                return race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node } ).then(()=>{
+                return race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node, gas: 3141592 } ).then(()=>{
                     return race.testIsValidStartSignal(msg).then( val => val.should.be.true )
                 });
             });
@@ -462,7 +464,7 @@ contract('Race', function(accounts) {
                 sig.r = util.addHexPrefix(sig.r.toString('hex'));
                 sig.s = util.addHexPrefix(sig.s.toString('hex'));
                 
-                return race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node } ).then(()=>{
+                return race.submitSignedBeaconId( sig.v, sig.r, sig.s, {from: node, gas: 3141592 } ).then(()=>{
                     return race.testIsValidStartSignal(badMsg).then( val => val.should.be.false )
                 });
             });
@@ -502,7 +504,7 @@ contract('Race', function(accounts) {
                         done();
                        
                     });
-                    race.testBroadcastBeacon({from: racerA});
+                    race.testBroadcastBeacon({from: racerA, gas: 3141592});
                 })
             });
 
@@ -526,7 +528,7 @@ contract('Race', function(accounts) {
                    
                 });
                 // Run
-                race.testPublishMessage(uuid, message, expires, {from: racerA});
+                race.testPublishMessage(uuid, message, expires, race.address, race, {from: racerA, gas: 3141592});
             });
         });
 
@@ -542,12 +544,12 @@ contract('Race', function(accounts) {
         describe('nodeCanVerify', () => {
 
             it ('should pass if node is specified to auth for racers current step', () => {
-                return race.testNodeCanVerify(racerA, {from: node}).then( result => result.should.be.true )   
+                return race.testNodeCanVerify(racerA, {from: node, gas: 3141592}).then( result => result.should.be.true )   
             });
 
             it ('should throw if node is NOT specified to auth for racers current step', () => {
                 let bad_node = accounts[4];
-                return race.testNodeCanVerify(racerA, {from: bad_node})
+                return race.testNodeCanVerify(racerA, {from: bad_node, gas: 3141592})
                     .then( val => false.should.be.true )
                     .catch( err => err.should.be.empty ) 
             });
@@ -556,12 +558,12 @@ contract('Race', function(accounts) {
         describe('clientCanStep', () => {
 
             it ('should pass if racers last completed step is before the final step', () => {
-                return race.testClientCanStep(racerA, {from: node}).then( result => result.should.be.true )
+                return race.testClientCanStep(racerA, {from: node, gas: 3141592}).then( result => result.should.be.true )
             });
 
             it ('should throw if racers last completed step was the final step', () =>{
-                return race.setClientState(racerA, endState, {from: node}).then( () => {
-                    return race.testClientCanStep(racerA, {from: node})
+                return race.setClientState(racerA, endState, {from: node, gas: 3141592}).then( () => {
+                    return race.testClientCanStep(racerA, {from: node, gas: 3141592})
                         .then( val => false.should.be.true )
                         .catch( err => err.should.be.empty ) 
                 });   
@@ -571,12 +573,12 @@ contract('Race', function(accounts) {
         describe('clientIsRacer', () => {
 
             it ('should pass if client has committed to race', () => {
-                return race.testClientIsRacer(racerA, {from: node}).then( result => result.should.be.true )
+                return race.testClientIsRacer(racerA, {from: node, gas: 3141592}).then( result => result.should.be.true )
             });
 
             it ('should throw if client has NOT commited to race', () => {
                 let bad_racer = accounts[4];
-                return race.testClientIsRacer(bad_racer, {from: node})
+                return race.testClientIsRacer(bad_racer, {from: node, gas: 3141592})
                     .then( val => false.should.be.true )
                     .catch( err => err.should.be.empty )        
             });
@@ -585,12 +587,12 @@ contract('Race', function(accounts) {
         describe('senderCanStep', () => {
 
             it ('should pass if racers last completed step is before the final step', () => {
-                return race.testSenderCanStep({from: racerA}).then( result => result.should.be.true )
+                return race.testSenderCanStep({from: racerA, gas: 3141592}).then( result => result.should.be.true )
             });
 
             it ('should throw if racers last completed step was the final step', () =>{
-                return race.setClientState(racerA, endState, {from: node}).then( () => {
-                    return race.testSenderCanStep({from: racerA})
+                return race.setClientState(racerA, endState, {from: node, gas: 3141592}).then( () => {
+                    return race.testSenderCanStep({from: racerA, gas: 3141592})
                         .then( val => false.should.be.true )
                         .catch( err => err.should.be.empty ) 
                 });
@@ -600,12 +602,12 @@ contract('Race', function(accounts) {
         describe('senderIsRacer', () => {
 
             it ('should pass if sender has committed to race', () => {
-                return race.testSenderIsRacer({from: racerA }).then( result => result.should.be.true )
+                return race.testSenderIsRacer({from: racerA, gas: 3141592 }).then( result => result.should.be.true )
             });
 
             it ('should throw if sender has NOT commited to race', () => {
                 let bad_racer = accounts[4];
-                return race.testSenderIsRacer({from: bad_racer})
+                return race.testSenderIsRacer({from: bad_racer, gas: 3141592})
                     .then( val => false.should.be.true )
                     .catch( err => err.should.be.empty )     
             });
@@ -616,15 +618,15 @@ contract('Race', function(accounts) {
             // Note: The test contract's stateMap has test node address for both states.
             
             it ('should pass if sender has been verified by the correct node', () => {
-                return race.setClientVerifier(racerA, node, {from: node}).then( () => { 
-                    return race.testSenderIsVerified({from: racerA })
+                return race.setClientVerifier(racerA, node, {from: node, gas: 3141592}).then( () => { 
+                    return race.testSenderIsVerified({from: racerA, gas: 3141592 })
                         .then( result => result.should.be.true )
                 });
             });
 
             it ('should throw if sender has NOT been verified by the correct node', () => {
-                return race.setClientVerifier(racerA, utils.toAddress(0), {from: node}).then(() => {
-                    return race.testSenderIsVerified({from: racerA })
+                return race.setClientVerifier(racerA, utils.toAddress(0), {from: node, gas: 3141592}).then(() => {
+                    return race.testSenderIsVerified({from: racerA, gas: 3141592 })
                         .then( val => false.should.be.true )
                         .catch( err => err.should.be.empty ) 
                 });                 
@@ -634,15 +636,15 @@ contract('Race', function(accounts) {
         describe('senderIsAuthorized', () => {
 
             it ('should pass if sender can authorize their own tx', () => {
-                return race.setClientAuthority(racerA, racerA, {from: node}).then(() => {
+                return race.setClientAuthority(racerA, racerA, {from: node, gas: 3141592}).then(() => {
                     return race.testSenderIsAuthorized({from: racerA })
                         .then( result => result.should.be.true )
                 });
             });
 
             it ('should throw if sender cannot authorize their own tx', () => {
-                return race.setClientAuthority(racerA, racerB, {from: node}).then(() => {
-                    return race.testSenderIsAuthorized({from: racerA })
+                return race.setClientAuthority(racerA, racerB, {from: node, gas: 3141592}).then(() => {
+                    return race.testSenderIsAuthorized({from: racerA, gas: 3141592})
                         .then( val => false.should.be.true )
                         .catch( err => err.should.be.empty )
                 });   
@@ -653,11 +655,11 @@ contract('Race', function(accounts) {
 
             it ('should pass if the sender has NOT registered w/ the contract', () => {
                 let unknown = accounts[4];
-                return race.testSenderUnknown({from: unknown}).then( result => result.should.be.true )
+                return race.testSenderUnknown({from: unknown, gas: 3141592}).then( result => result.should.be.true )
             });
 
             it ('should throw if the sender has registered w/ the contract', () => {
-                return race.testSenderUnknown({from: racerA })
+                return race.testSenderUnknown({from: racerA, gas: 3141592 })
                     .then( val => false.should.be.true )
                     .catch( err => err.should.be.empty )    
             });
@@ -666,15 +668,15 @@ contract('Race', function(accounts) {
         describe('senderIsFinished', () => {
 
             it ('should pass if the racer has reached the end state', () => {
-                return race.setClientState(racerA, endState, {from: node}).then(() => {
-                    return race.testSenderIsFinished({from: racerA})
+                return race.setClientState(racerA, endState, {from: node, gas: 3141592}).then(() => {
+                    return race.testSenderIsFinished({from: racerA, gas: 3141592})
                         .then( result => result.should.be.true )
                 }); 
             });
 
             // Note: Racer state defaults to 0 before test
             it ('should throw if the sender has NOT reached the end state', () => {
-                return race.testSenderIsFinished({from: racerA })
+                return race.testSenderIsFinished({from: racerA, gas: 3141592 })
                     .then( val => false.should.be.true )
                     .catch( err => err.should.be.empty )    
             });
@@ -684,8 +686,8 @@ contract('Race', function(accounts) {
 
             it ('should pass if the racer finished before the current block', () => {
                 let before = web3.eth.blockNumber - 1;
-                return race.setClientEndBlock(racerA, before, {from: node}).then(() => {
-                    return race.testSenderCanCheckResults({from: racerA})
+                return race.setClientEndBlock(racerA, before, {from: node, gas: 3141592}).then(() => {
+                    return race.testSenderCanCheckResults({from: racerA, gas: 3141592})
                         .then( result => result.should.be.true )  
                 });
             });
@@ -696,8 +698,8 @@ contract('Race', function(accounts) {
             it ('should throw if racer finished in the current block', () => {
                 
                 let present = web3.eth.blockNumber + 1;
-                return race.setClientEndBlock(racerA, present, {from: node}).then(() => {
-                    return race.testSenderCanCheckResults({from: racerA })
+                return race.setClientEndBlock(racerA, present, {from: node, gas: 3141592}).then(() => {
+                    return race.testSenderCanCheckResults({from: racerA, gas: 3141592 })
                         .then( val => false.should.be.true )
                         .catch( err => err.should.be.empty )   
                 });       
@@ -708,12 +710,12 @@ contract('Race', function(accounts) {
 
             // Note: Contract defaults to open
             it ('should pass if the contract is still accepting registrants', () => {
-                return race.testContractIsOpen(racerA, {from: node}).then( result => result.should.be.true )     
+                return race.testContractIsOpen(racerA, {from: node, gas: 3141592}).then( result => result.should.be.true )     
             });
 
             it ('should throw if the contract is closed to new registrants', () => {
-                return race.setContractOpen(false, {from: node}).then(() => {
-                    return race.testContractIsOpen({from: node })
+                return race.setContractOpen(false, {from: node, gas: 3141592}).then(() => {
+                    return race.testContractIsOpen({from: node, gas: 3141592 })
                         .then( val => false.should.be.true )
                         .catch( err => err.should.be.empty ) 
                 });  
