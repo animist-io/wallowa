@@ -1,7 +1,7 @@
 pragma solidity 0.4.3;
 
 // This is a shell to generate an ABI. These are method names and
-// params that constitute contract API for animist nodes. 
+// params that constitute the contract API for whale-island nodes. 
 contract AnimistAPI {
 
     function verifyPresence(address visitor, uint64 time){}

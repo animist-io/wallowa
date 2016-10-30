@@ -1,15 +1,14 @@
 /** 
 Every Animist endpoint filters via the 'node' topic for events on this contract 
-Use within an Animist contract:
+Example use within an Animist contract:
     
     (after importing AnimistEvent.sol)
     
-    address contract_address = some_nodes_AnimistEvent_address;
+    address contract_address = deployedAnimistEventContract_address;
     AnimistEvent instance = AnimistEvent(contract_address);
-    instance.register(node_address, account_address, address(this));
-    instance.broadcast(node_address, uint value, uint expires);
-
-Security issues: spamming a node. */
+    instance.requestPresenceVerification(node_address, mobileClient_address, address(this));
+    
+*/
 pragma solidity ^0.4.3;
 
 contract AnimistEvent {
@@ -47,10 +46,7 @@ contract AnimistEvent {
     event LogBeaconBroadcastRequest( address indexed node, string uuid, address contractAddress );
 
     // ------------------------------------------  Event wrappers ------------------------------------------------------
-    // NB: There will eventually need to be logic here for compensating the node for providing these services. Some sort
-    // of payment will be sent to these methods.
-    function stub() constant {}
-
+    // NB: There will eventually need to be logic here for compensating the node for providing these services. 
     function requestPresenceVerification(address node, address account, address contractAddress) public payable {
 
         LogPresenceVerificationRequest(node, account, contractAddress);

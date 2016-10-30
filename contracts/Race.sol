@@ -73,11 +73,7 @@ contract Race {
     // -------------------------------  Modifiers -----------------------------------------
     // ------------------------------------------------------------------------------------
     
-    // *** Question ***: Should these return instead of throwing? Most are errors 
-    // and it would be good if they printed red. But . . . some might not be. nodeCanVerify for
-    // example. A racer could legitimately encounter a node thats not specified in the contract.
-    // Gas destruction vs. basic reporting issue. 
-
+    // *** Issue ***: Throw vs. return.
     // --------------- (Public: Nodes) ----------------------
     
     // Is this node allowed to verify presence at this step?
