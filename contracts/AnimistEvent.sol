@@ -11,8 +11,8 @@ Example use within an Animist contract:
 */
 pragma solidity ^0.4.3;
 
-contract AnimistEvent {
 
+contract AnimistEvent {
     /*
      * @event LogProximityDetectionRequest
      * @param {Address} node:  Address of the node that should proximity detect the client
@@ -21,7 +21,11 @@ contract AnimistEvent {
      *                                   to authenticate client's presence at the node.
      *
      */
-    event LogPresenceVerificationRequest( address indexed node, address account, address contractAddress);
+    event LogPresenceVerificationRequest( 
+        address indexed node, 
+        address account, 
+        address contractAddress
+    );
     
    /*
      * @event LogMessagePublicationRequest
@@ -31,7 +35,13 @@ contract AnimistEvent {
      * @param {Number}  expires: Expiration date of broadcast (in ms from Epoch) 
      * @param {Address} contractAddress: contract to check client authorization by and write delivery confirmation to. 
      */
-    event LogMessagePublicationRequest( address indexed node, string uuid, string message, uint64 expires, address contractAddress );
+    event LogMessagePublicationRequest( 
+        address indexed node, 
+        string uuid, 
+        string message, 
+        uint64 expires, 
+        address contractAddress 
+    );
 
     /*
      * @event LogBeaconBroadcastRequest
@@ -41,26 +51,55 @@ contract AnimistEvent {
                               `contractAddress`'s submitSignedBeacon method, passing it a web3 signed version of the string:
                               '<uuid>:<major:<minor>'.
      * @param {Address} contractAddress: address of the contract requesting this service. It must implement a method 
-                       with the function signature `submitSignedBeacon( bytes32 hash )`
+                        with the function signature `submitSignedBeacon( bytes32 hash )`
      */
-    event LogBeaconBroadcastRequest( address indexed node, string uuid, address contractAddress );
+    event LogBeaconBroadcastRequest( 
+        address indexed node, 
+        string uuid, 
+        address contractAddress 
+    );
 
     // ------------------------------------------  Event wrappers ------------------------------------------------------
     // NB: There will eventually need to be logic here for compensating the node for providing these services. 
-    function requestPresenceVerification(address node, address account, address contractAddress) public payable {
-
+    function requestPresenceVerification( 
+        address node, 
+        address account, 
+        address 
+        contractAddress
+    )   
+        public 
+        payable
+    {
         LogPresenceVerificationRequest(node, account, contractAddress);
     }
 
-    function requestMessagePublication(address node, string uuid, string message, uint64 expires, address contractAddress ){
-
-        LogMessagePublicationRequest(node, uuid, message, expires, contractAddress );
+    function requestMessagePublication(
+        address node, 
+        string uuid, 
+        string message, 
+        uint64 expires, 
+        address contractAddress 
+    ) 
+        public 
+        payable 
+    {
+        LogMessagePublicationRequest(
+            node, 
+            uuid, 
+            message, 
+            expires, 
+            contractAddress 
+        );
     }
 
-    function requestBeaconBroadcast(address node, string uuid, address contractAddress ){
-
-        LogBeaconBroadcastRequest( node, uuid, contractAddress );
-
+    function requestBeaconBroadcast(
+        address node, 
+        string uuid, 
+        address contractAddress 
+    )
+        public 
+        payable 
+    {
+        LogBeaconBroadcastRequest(node, uuid, contractAddress);
     }
-
 }

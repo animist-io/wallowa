@@ -8,13 +8,14 @@ pragma solidity ^0.4.3;
 import 'AnimistEvent.sol';
 import 'Race.sol';
 
+
 contract Race_test is Race {
     // Variables for Events tests
     address authorizedClient;
     bool messageDelivered;
 
     // Unit tests currently over write all the values.  
-    function Race_test(){
+    function Race_test() {
         var nodeAddr = address(0x579fadbb36a7b7284ef4e50bbc83f3f294e9a8ec);
         endState = 1;
         raceOpen = true;
@@ -23,87 +24,93 @@ contract Race_test is Race {
     }
 
     // ------------------- TEST SETTERS ----------------------
-    function addRacer(){
-        racers[msg.sender] = Racer( msg.sender, msg.sender, 0, address(0), uint64(0), uint(0));
+    function addRacer() {
+        racers[msg.sender] = Racer( 
+            msg.sender, 
+            msg.sender, 
+            0, 
+            address(0), 
+            uint64(0), 
+            uint(0)
+        );
+
         racerList.push(msg.sender);
     }
 
-    function setRaceOpen(bool val){
+    function setRaceOpen(bool val) {
         raceOpen = val;
     }
 
-    function setStateMap(address node, uint i){
+    function setStateMap(address node, uint i) {
         stateMap[i].node = node;
     }
 
-    function setContractEndState(uint8 state){
+    function setContractEndState(uint8 state) {
         endState = state;
     }
 
-    function setEventContract( address contractAddress, uint i ){
+    function setEventContract(address contractAddress, uint i) {
         stateMap[i].eventContract = contractAddress;
     }
 
-    function setClientState(address client, uint8 state){
+    function setClientState(address client, uint8 state) {
         racers[client].state = state;
     }
 
-    function setClientVerifier(address client, address verifier){
+    function setClientVerifier(address client, address verifier) {
         racers[client].verifier = verifier;
     }
 
-    function setClientTimeVerified(address client, uint64 time){
+    function setClientTimeVerified(address client, uint64 time) {
         racers[client].timeVerified = time;
     }
 
-    function setClientAuthority(address client, address authority){
+    function setClientAuthority(address client, address authority) {
         racers[client].authority = authority;
     }
 
-    function setClientEndBlock(address client, uint endBlock){
+    function setClientEndBlock(address client, uint endBlock) {
         racers[client].endBlock = endBlock;
     }
 
-    function setSignedStartSignal(){
+    function setSignedStartSignal() {
         signedStartSignal.v = 0;
         signedStartSignal.r = bytes32(0);
         signedStartSignal.s = bytes32(0);
     }
 
-    function getClientAccount(address client) constant returns (address a){
+    function getClientAccount(address client) constant returns (address a) {
         return racers[client].account;
     }
 
-    function deleteLastRacer(address racer){
+    function deleteLastRacer(address racer) {
         delete racers[racer];
         delete racerList[racerList.length - 1]; 
     }
 
-    function setAuthorizedClient( address racer){
+    function setAuthorizedClient(address racer) {
         authorizedClient = racer;
     }
 
-    function setMessageDelivered( bool val ){
+    function setMessageDelivered(bool val) {
         messageDelivered = val;
     }
     
-    function getMessageDelivered() constant returns (bool result){
+    function getMessageDelivered() constant returns (bool result) {
         return messageDelivered;
     }
 
     // --------- INTERNAL FUNCTION WRAPPERS ----------------
     
-    function testIsFirst(address racer)
-        constant returns (bool result) {
-            return isFirst(racer);
-        }
+    function testIsFirst(address racer) constant returns (bool result) {
+        return isFirst(racer);
+    }
 
-    function testIsValidStartSignal( string signal )
-        constant returns (bool result) {
-            return isValidStartSignal(signal);
-        }
+    function testIsValidStartSignal(string signal) constant returns (bool result) {
+        return isValidStartSignal(signal);
+    }
 
-    function testBroadcastCommit(){
+    function testBroadcastCommit() {
         broadcastCommit();
     }
 
@@ -112,25 +119,33 @@ contract Race_test is Race {
         string uuid, 
         string message, 
         uint32 duration, 
-        address contractAddress )
+        address contractAddress)
     {
-        publishMessage(uuid, message, duration, contractAddress );
+        publishMessage(
+            uuid, 
+            message, 
+            duration, 
+            contractAddress
+        );
     }
 
-    function isAuthorizedToReadMessage( address visitor, string uuid ) constant returns (bool result){
-        if (msg.sender == stateMap[0].node && visitor == authorizedClient )
+    function isAuthorizedToReadMessage(address visitor, string uuid) 
+        constant 
+        returns (bool result) 
+    {
+        if (msg.sender == stateMap[0].node && visitor == authorizedClient)
             return true;
         else
             return false;
     }
 
-    function confirmMessageDelivery( address visitor, string uuid, uint64 time){
+    function confirmMessageDelivery(address visitor, string uuid, uint64 time) {
         if (msg.sender == stateMap[0].node && visitor == authorizedClient )
             messageDelivered = true;
     } 
 
     // -------------------- START SIGNAL BROADCAST --------------------------
-    function testBroadcastBeacon(){
+    function testBroadcastBeacon() {
         broadcastBeacon();
     }
     
@@ -140,77 +155,99 @@ contract Race_test is Race {
     
     function testNodeCanVerify(address client)
         nodeCanVerify(client) 
-        constant returns (bool result) {
-            return true;
-        }
+        constant 
+        returns (bool result) 
+    {
+        return true;
+    }
 
 
     function testClientCanStep(address client)
         clientCanStep(client)
-        constant returns (bool result){
-            return true;
-        }
+        constant 
+        returns (bool result)
+    {
+        return true;
+    }
 
     function testClientIsRacer(address client)
         clientIsRacer(client)
-        constant returns (bool result){
-            return true;
-        }
+        constant 
+        returns (bool result)
+    {
+        return true;
+    }
     
 
     function testSenderCanStep()
         senderCanStep
-        constant returns (bool result){
-            return true;
-        }
+        constant 
+        returns (bool result)
+    {
+        return true;
+    }
     
 
     function testSenderIsRacer()
         senderIsRacer
-        constant returns (bool result){
-            return true;
-        }
+        constant 
+        returns (bool result)
+    {
+        return true;
+    }
     
 
     function testSenderIsVerified()
         senderIsVerified
-        constant returns (bool result){
-            return true;
-        }
+        constant 
+        returns (bool result)
+    {
+        return true;
+    }
     
 
     function testSenderIsAuthorized()
         senderIsAuthorized
-        constant returns (bool result){
-            return true;
-        }
+        constant 
+        returns (bool result)
+    {
+        return true;
+    }
     
 
     function testSenderUnknown()
         senderUnknown
-        constant returns (bool result){
-            return true;
-        }
+        constant 
+        returns (bool result)
+    {
+        return true;
+    }
     
 
     function testSenderIsFinished()
         senderIsFinished
-        constant returns (bool result){
-            return true;
-        }
+        constant 
+        returns (bool result)
+    {
+        return true;
+    }
     
 
     function testSenderCanCheckResults()
         senderCanCheckResults
-        constant returns (bool result){
-            return true;
-        }
+        constant 
+        returns (bool result)
+    {
+        return true;
+    }
     
 
     function testContractIsOpen()
         contractIsOpen
-        constant returns (bool result){
-            return true;
-        }
+        constant 
+        returns (bool result)
+    {
+        return true;
+    }
 }
 

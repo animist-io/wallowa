@@ -127,7 +127,7 @@ contract('Race', function (accounts) {
       // recovery within a Solidity function.
 
       let msg = 'B4D5272F-D4AD-4903-A6F5-37032700EB7D:64444:63333'
-      let msgHash = util.addHexPrefix(util.sha3(msg).toString('hex'))
+      let msgHash = web3.sha3(msg)
       let signed = web3.eth.sign(node, msgHash)
       let sig = util.fromRpcSig(signed)
 

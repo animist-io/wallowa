@@ -11,7 +11,8 @@
 // (See the README at: animist-io/wallowa for a more detailed description) 
 pragma solidity ^0.4.3;
 
-import 'AnimistEvent.sol';
+import "AnimistEvent.sol";
+
 
 contract Race {
 
@@ -38,7 +39,6 @@ contract Race {
 
     // Contract states / constants
     bool public raceOpen;                   // Set to true while racers may join contract. 
-    uint64 public startTime;                // Time when race began. 
     uint8 public endState;                  // Which step to end race on.
     string public startSignal;              // v4 uuid first node will emit as a start signal.
     Node[2] public stateMap;                // Which nodes expected at which steps
@@ -51,11 +51,12 @@ contract Race {
     // --------------------------------- Test Constructor   ----------------------------------------
     // Stub: This is the section that needs to be templated per race. 
     // Over-written in current tests.
-    function Race(){
+    
+    function Race() {
         var nodeAddr = address(0x579fadbb36a7b7284ef4e50bbc83f3f294e9a8ec);
         endState = 1;
         raceOpen = true;
-        startSignal = '0C3B5446-4B58-4151-BC01-A76CDDC495E4';
+        startSignal = "0C3B5446-4B58-4151-BC01-A76CDDC495E4";
         stateMap[0].node = nodeAddr;
         stateMap[1].node = nodeAddr;
     }
@@ -70,7 +71,8 @@ contract Race {
     // Is this node allowed to verify presence at this step?
     modifier nodeCanVerify(address client) {
         var next = racers[client].state + 1;
-        if (msg.sender != stateMap[next].node) throw;
+        if (msg.sender != stateMap[next].node) 
+            throw;
         _;
     }
 
@@ -78,78 +80,90 @@ contract Race {
     //(Functionally redundant in combination w/ other client or sender checks. 
     // Makes membership req. explicit for the contract reader. ) 
     modifier clientIsRacer(address client) {
-        if (racers[client].account == address(0)) throw;
+        if (racers[client].account == address(0)) 
+            throw;
         _;
     }
 
     // Can the client step forward (or are they finished)?
     modifier clientCanStep(address client){
-        if ( racers[client].state >= endState ) throw;
+        if (racers[client].state >= endState) 
+            throw;
         _;
     }
 
     // --------- (Public: Racer ) ------------------
     // Is the caller registered as a racer ?
     modifier senderIsRacer {
-        if (racers[msg.sender].account == address(0) ) throw;
+        if (racers[msg.sender].account == address(0)) 
+            throw;
         _; 
     }
 
     // Is caller unregistered for this race? 
     modifier senderUnknown {
-        if (racers[msg.sender].account != address(0) ) throw;
+        if (racers[msg.sender].account != address(0)) 
+            throw;
         _;
     }
 
     // Does the caller have more steps to take?
     modifier senderCanStep {
-        if ( racers[msg.sender].state >= endState ) throw;
+        if (racers[msg.sender].state >= endState) 
+            throw;
         _;
     }
 
-    // Has caller's presence been verified by the required node?
+    // Has caller"s presence been verified by the required node?
     modifier senderIsVerified {
         var next = racers[msg.sender].state + 1; 
-        if ( racers[msg.sender].verifier != stateMap[next].node) throw;
+        if (racers[msg.sender].verifier != stateMap[next].node) 
+            throw;
         _;
     }
 
     // Is caller permitted to sign their own tx ?
     modifier senderIsAuthorized {
-        if (racers[msg.sender].authority != msg.sender ) throw;
+        if (racers[msg.sender].authority != msg.sender) 
+            throw;
         _;
     }
 
     // Is caller at the end state?
     modifier senderIsFinished {
-        if( racers[msg.sender].state != endState) throw;
+        if (racers[msg.sender].state != endState) 
+            throw;
         _;
     }
 
     // Is current block later than the block racer finished on?
     // (This is a precondition to reward because there are no
-    //  guarantees about what order tx's will be processed in the same block )
+    //  guarantees about what order tx"s will be processed in the same block )
     modifier senderCanCheckResults {
-        if( racers[msg.sender].endBlock >= block.number) throw;
+        if (racers[msg.sender].endBlock >= block.number) 
+            throw;
         _;
     }
 
     // --------------- ( Public: General ) --------------------------
     // Is contract open for new contestants to register ?
     modifier contractIsOpen {
-        if( raceOpen != true ) throw;
+        if (raceOpen != true) 
+            throw;
         _;
     }
 
     // Is start signal uninitialized ?
     modifier startSignalUnset {
-        if ( signedStartSignal.r != bytes32(0) ) throw;
+        if (signedStartSignal.r != bytes32(0)) 
+            throw;
         _;
     }
 
     // Is caller the first node in the race? i.e. the node authorized to fire the start signal.
     modifier canSignBeaconId {
-        if ( msg.sender != stateMap[0].node ) throw;
+        if (msg.sender != stateMap[0].node) 
+            throw;
         _;
     }
 
@@ -157,62 +171,62 @@ contract Race {
     // -----------------------------------  Public Getters   ---------------------------------------
     // ---------------------------------------------------------------------------------------------
     
-    // Returns the account address of the 'racer'. (A way to verify they are in the mapping)
-    function getAccount(address racer) constant public returns (address account){
+    // Returns the account address of the "racer". (A way to verify they are in the mapping)
+    function getAccount(address racer) constant public returns (address account) {
         return racers[racer].account;
     }
 
-    // Returns the account address authorized to advance 'racer'. May be racer.
-    function getAuthority(address racer) constant public returns (address authority){
+    // Returns the account address authorized to advance "racer". May be racer.
+    function getAuthority(address racer) constant public returns (address authority) {
         return racers[racer].authority;
     }
 
     // Returns the address of the last node to verify racers presence.
-    function getVerifier(address racer) constant public returns (address verifier){
+    function getVerifier(address racer) constant public returns (address verifier) {
         return racers[racer].verifier;
     }
 
-    // Returns integer value of racer's last completed step   
-    function getState(address racer) constant public returns (uint8 state){
+    // Returns integer value of racer"s last completed step   
+    function getState(address racer) constant public returns (uint8 state) {
         return racers[racer].state;
     }
 
-    // Returns time when node verified racer's last step.
-    function getTimeVerified(address racer) constant public returns (uint64 time){
+    // Returns time when node verified racer"s last step.
+    function getTimeVerified(address racer) constant public returns (uint64 time) {
         return racers[racer].timeVerified;
     }
 
     // Returns block number contestant finished on
-    function getEndBlock(address racer) constant public returns (uint endBlock){
+    function getEndBlock(address racer) constant public returns (uint endBlock) {
         return racers[racer].endBlock;
     }
 
     // Returns size of the stateMap (see storage declarations above)
     // (Size of state map should be hardcoded - needs to be set in template)
-    function getStateMapLength() constant public returns (uint length){
-       return stateMap.length;
+    function getStateMapLength() constant public returns (uint length) {
+        return stateMap.length;
     }
 
     // Returns the account address of the most recent racer to commit to the race
-    function getMostRecentCommit() constant public returns (address racer){
+    function getMostRecentCommit() constant public returns (address racer) {
         return racerList[racerList.length - 1];
     }
 
     // Returns the startSignal
-    function getStartSignal() constant public returns (string uuid ){
+    function getStartSignal() constant public returns (string uuid) {
         return startSignal;
     }
 
     // Return EC components of the signedStartSignal
-    function getSignedStartSignal_v() constant public returns (uint8 v){
+    function getSignedStartSignal_v() constant public returns (uint8 v) {
         return signedStartSignal.v;
     }
 
-    function getSignedStartSignal_r() constant public returns (bytes32 r){
+    function getSignedStartSignal_r() constant public returns (bytes32 r) {
         return signedStartSignal.r;
     }
 
-    function getSignedStartSignal_s() constant public returns (bytes32 s){
+    function getSignedStartSignal_s() constant public returns (bytes32 s) {
         return signedStartSignal.s;
     }
 
@@ -220,10 +234,11 @@ contract Race {
     // -----------------------------------  Public Methods -----------------------------------------
     // ---------------------------------------------------------------------------------------------
 
-    // Called by node to authorize step. 'verifyPresence' is part of the Animist contract API.
+    // Called by node to authorize step. "verifyPresence" is part of the Animist contract API.
     // Nodes that get a req to authenticate presence will use a generic abi for this method and 
-    // execute it on the contract instance. 
-    function verifyPresence(address client, uint64 time) public
+    // execute it on the contract instance.
+    function verifyPresence(address client, uint64 time) 
+        public
         clientIsRacer(client)
         clientCanStep(client)
         nodeCanVerify(client)
@@ -233,12 +248,13 @@ contract Race {
     }
 
     // Called by node when it receives a beacon broadcast request. submitSignedBeaconId is part of 
-    // the Animist contract API. Node will generate random values for the beacon's major and minor
+    // the Animist contract API. Node will generate random values for the beacon"s major and minor
     // components, sign a string with the form: <uuid>:<major>:<minor> and submit the hash to the
     // contract. The signature obscures the value within the contract but provides a way for racers 
     // to prove they received the signal by invoking the function `isValidStartSignal` (below, in
     // the `internal methods` section)
-    function submitSignedBeaconId( uint8 v, bytes32 r, bytes32 s) public
+    function submitSignedBeaconId(uint8 v, bytes32 r, bytes32 s) 
+        public
         startSignalUnset()
         canSignBeaconId()
     {
@@ -248,11 +264,20 @@ contract Race {
     }
 
     // Called by user to commit to race
-    function commitSelf() public
+    function commitSelf() 
+        public
         senderUnknown
         contractIsOpen 
     {
-        racers[msg.sender] = Racer( msg.sender, msg.sender, 0, address(0), uint64(0), uint(0));
+        racers[msg.sender] = Racer(
+            msg.sender, 
+            msg.sender, 
+            0, 
+            address(0), 
+            uint64(0), 
+            uint(0)
+        );
+
         racerList.push(msg.sender);
         broadcastCommit();
     }
@@ -261,7 +286,8 @@ contract Race {
     // Resets status to unverified, for next step. 
     // If racer has finished sets their endBlock field to
     // the current block number.
-    function advanceSelf() public
+    function advanceSelf() 
+        public
         senderIsRacer
         senderCanStep 
         senderIsVerified
@@ -269,7 +295,7 @@ contract Race {
         racers[msg.sender].state++;
         racers[msg.sender].verifier = address(0);
         
-        if(racers[msg.sender].state == endState){
+        if (racers[msg.sender].state == endState) {
             racers[msg.sender].endBlock = block.number;
         }
     }
@@ -277,14 +303,15 @@ contract Race {
 
     // Called by racers to collect reward. Tests whether racer
     // was first and pays if true. (Must run in a block subsequent to their 
-    // finish b/c there there are no guarantees about what order tx's 
+    // finish b/c there there are no guarantees about what order tx"s 
     // will be processed in within a block.)
-    function rewardSelf() public
+    function rewardSelf() 
+        public
         senderIsRacer
         senderIsFinished
         senderCanCheckResults
     {
-        if ( isFirst(msg.sender) ){
+        if (isFirst(msg.sender)) {
             // pay self
         }
     }
@@ -293,11 +320,17 @@ contract Race {
     // -----------------------------------  Internal Methods ---------------------------------------
     // ---------------------------------------------------------------------------------------------
 
-    // Returns true if `receivedStartSignal` (a string w/ form <uuid>:<major>:<minor>) is the 
-    // same value as the signal signed by the starting node on broadcast. False otherwise. 
-    function isValidStartSignal( string receivedStartSignal ) internal returns (bool result){
+    
+    /// Returns true if `receivedStartSignal` (a string w/ form <uuid>:<major>:<minor>) is the
+    /// same value as the signal signed by the starting node on broadcast. False otherwise. 
+    function isValidStartSignal(string receivedStartSignal) internal returns (bool result) {
         var signal = sha3(receivedStartSignal);
-        var startNode = ecrecover(signal, signedStartSignal.v, signedStartSignal.r, signedStartSignal.s);
+        var startNode = ecrecover(
+            signal, 
+            signedStartSignal.v, 
+            signedStartSignal.r, 
+            signedStartSignal.s
+        );
 
         if (startNode == stateMap[0].node)
             return true;
@@ -305,17 +338,16 @@ contract Race {
             return false;
     }
 
-    // Returns false if 'racer' has finished later than anyone else, true otherwise
+    // Returns false if "racer" has finished later than anyone else, true otherwise
     function isFirst(address racer) internal returns (bool result) {
-
         // Compare racer with all other racers (including themselves)
-        for (var i = 0; i < racerList.length; i++ ){
-            var self_time = racers[racer].timeVerified;
-            var other_time = racers[racerList[i]].timeVerified;
-            var other_endBlock = racers[racerList[i]].endBlock;
+        for (var i = 0; i < racerList.length; i++ ) {
+            var selfTime = racers[racer].timeVerified;
+            var otherTime = racers[racerList[i]].timeVerified;
+            var otherEndBlock = racers[racerList[i]].endBlock;
             
-            // Case: Other finished AND racer's verified time is later than other's
-            if ( (other_endBlock != uint(0)) && (self_time > other_time) ){
+            // Case: Other finished AND racer"s verified time is later than other"s
+            if ((otherEndBlock != uint(0)) && (selfTime > otherTime)) {
                 return false;
             }
         }
@@ -324,17 +356,17 @@ contract Race {
         return true;
     }
 
-    // Iterates through the statemap broadcasting the caller's race 
+    // Iterates through the statemap broadcasting the caller"s race 
     // commitment to each node they will need to interact with. 
-    function broadcastCommit() internal {
-        for (var i = 0; i < stateMap.length; i++){
+    function broadcastCommit () internal {
+        for (var i = 0; i < stateMap.length; i++) {
             var contractAddress = stateMap[i].eventContract;
             AnimistEvent node = AnimistEvent(contractAddress);
-            node.requestPresenceVerification( stateMap[i].node, msg.sender, address(this));
+            node.requestPresenceVerification(stateMap[i].node, msg.sender, address(this));
         }
     }
 
-    function publishMessage(
+    function publishMessage (
         string uuid, 
         string message, 
         uint32 expires, 
@@ -344,13 +376,20 @@ contract Race {
     {
         var contractAddress = stateMap[0].eventContract;
         AnimistEvent node = AnimistEvent(contractAddress);
-        node.requestMessagePublication( stateMap[0].node, uuid, message, expires, contractAddress_);
+        
+        node.requestMessagePublication(
+            stateMap[0].node, 
+            uuid, 
+            message, 
+            expires, 
+            contractAddress_
+        );
     }
 
-    function broadcastBeacon(){
+    function broadcastBeacon() {
         var contractAddress = stateMap[0].eventContract;
         AnimistEvent node = AnimistEvent(contractAddress);
-        node.requestBeaconBroadcast( stateMap[0].node, startSignal, address(this));
+        node.requestBeaconBroadcast(stateMap[0].node, startSignal, address(this));
     }
 }
 
