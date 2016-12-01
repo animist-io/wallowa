@@ -8,9 +8,7 @@ pragma solidity ^0.4.3;
 import 'AnimistEvent.sol';
 import 'Race.sol';
 
-
 contract Race_test is Race {
-
     // Variables for Events tests
     address authorizedClient;
     bool messageDelivered;
@@ -18,22 +16,20 @@ contract Race_test is Race {
     // Unit tests currently over write all the values.  
     function Race_test(){
         var nodeAddr = address(0x579fadbb36a7b7284ef4e50bbc83f3f294e9a8ec);
-
         endState = 1;
-        openContract = true;
-
+        raceOpen = true;
         stateMap[0].node = nodeAddr;
         stateMap[1].node = nodeAddr;
     }
 
     // ------------------- TEST SETTERS ----------------------
-    function addRacer() public {
+    function addRacer(){
         racers[msg.sender] = Racer( msg.sender, msg.sender, 0, address(0), uint64(0), uint(0));
         racerList.push(msg.sender);
     }
 
-    function setContractOpen(bool val) public {
-        openContract = val;
+    function setRaceOpen(bool val){
+        raceOpen = val;
     }
 
     function setStateMap(address node, uint i){
@@ -95,8 +91,6 @@ contract Race_test is Race {
         return messageDelivered;
     }
 
-
-
     // --------- INTERNAL FUNCTION WRAPPERS ----------------
     
     function testIsFirst(address racer)
@@ -113,13 +107,14 @@ contract Race_test is Race {
         broadcastCommit();
     }
 
-    // -------------------- EVENTS --------------------------
-    function testPublishMessage( string uuid, string message, uint32 duration, address contractAddress ){
+    // -------------------- MESSAGE PUBLICATION  --------------------------
+    function testPublishMessage( 
+        string uuid, 
+        string message, 
+        uint32 duration, 
+        address contractAddress )
+    {
         publishMessage(uuid, message, duration, contractAddress );
-    }
-
-    function testBroadcastBeacon(){
-        broadcastBeacon();
     }
 
     function isAuthorizedToReadMessage( address visitor, string uuid ) constant returns (bool result){
@@ -129,11 +124,15 @@ contract Race_test is Race {
             return false;
     }
 
-    // Method node will invoke when it allows client to read message from characteristic.
     function confirmMessageDelivery( address visitor, string uuid, uint64 time){
         if (msg.sender == stateMap[0].node && visitor == authorizedClient )
             messageDelivered = true;
     } 
+
+    // -------------------- START SIGNAL BROADCAST --------------------------
+    function testBroadcastBeacon(){
+        broadcastBeacon();
+    }
     
     // ------------  MODIFIER TEST WRAPPERS -----------------
     // All tests return true if fn makes it through the gate.

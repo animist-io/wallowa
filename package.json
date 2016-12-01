@@ -7,7 +7,23 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "standard": "standard --fix 'test/*.js'"
+  },
+  "standard": {
+    "globals": [
+      "contract",
+      "Race_test",
+      "AnimistEvent",
+      "describe",
+      "context",
+      "before",
+      "beforeEach",
+      "after",
+      "afterEach",
+      "it",
+      "expect"
+    ]
   },
   "repository": {
     "type": "git",
@@ -22,7 +38,8 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-bignumber": "^2.0.0",
-    "chai-spies": "^0.7.1"
+    "chai-spies": "^0.7.1",
+    "standard": "^8.6.0"
   },
   "dependencies": {
     "ethereumjs-util": "^4.5.0",
