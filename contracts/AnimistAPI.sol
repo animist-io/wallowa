@@ -1,4 +1,4 @@
-pragma solidity 0.4.3;
+pragma solidity ^0.4.3;
 
 // This is a shell to generate an ABI. These are method names and
 // params that constitute the contract API for whale-island nodes. 
