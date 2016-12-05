@@ -49,27 +49,7 @@ contract('Race', function (accounts) {
   })
 
   beforeEach(() => {
-    // Wipe everything used
-    return Promise.all([
-      race.setRaceOpen(true, {from: node, gas: 311592}),
-      race.setStateMap(node, 0, {from: node, gas: 3141592}),
-      race.setStateMap(node, 1, {from: node, gas: 3141592}),
-      race.setEventContract(eventContract.address, 0, {from: node, gas: 3141592}),
-      race.setEventContract(eventContract.address, 1, {from: node, gas: 3141592}),
-      race.setContractEndState(endState, {from: node, gas: 3141592}),
-      race.setClientState(racerA, 0, {from: node, gas: 3141592}),
-      race.setClientState(racerB, 0, {from: node, gas: 3141592}),
-      race.setClientTimeVerified(racerA, 0, {from: node, gas: 3141592}),
-      race.setClientTimeVerified(racerB, 0, {from: node, gas: 3141592}),
-      race.setClientVerifier(racerA, utils.toAddress(0), {from: node, gas: 3141592}),
-      race.setClientVerifier(racerB, utils.toAddress(0), {from: node, gas: 3141592}),
-      race.setClientEndBlock(racerA, utils.toAddress(0), {from: node, gas: 3141592}),
-      race.setClientEndBlock(racerB, utils.toAddress(0), {from: node, gas: 3141592}),
-      race.setClientAuthority(racerA, utils.toAddress(0), {from: node, gas: 3141592}),
-      race.setClientAuthority(racerA, utils.toAddress(0), {from: node, gas: 3141592}),
-      race.setSignedStartSignal({from: node, gas: 3141592}),
-      race.setMessageDelivered(false, {from: node, gas: 3141592})
-    ])
+    return race.reset(racerA, racerB, eventContract.address, {from: node, gas: 3141592});
   })
 
   // ------------------------------------------------------------------------------------
@@ -410,8 +390,7 @@ contract('Race', function (accounts) {
       let msg = 'B4D5272F-D4AD-4903-A6F5-37032700EB7D:64444:63333'
       let badMsg = 'bad'
 
-      let msgHash = util.addHexPrefix(util.sha3(msg).toString('hex'))
-
+      let msgHash = web3.sha3(msg)
       let signed = web3.eth.sign(node, msgHash)
       let sig = util.fromRpcSig(signed)
 
@@ -490,11 +469,12 @@ contract('Race', function (accounts) {
         let now = web3.eth.blockNumber
 
         // Default stateMap has length 2, 'node' listed twice.
-        eventContract.LogPresenceVerificationRequest(null, {fromBlock: now, toBlock: now + 1}, (e, res) => {
+        let filter = eventContract.LogPresenceVerificationRequest(null, {fromBlock: now, toBlock: now + 1}, (e, res) => {
           if (res.logIndex === 0) {
             res.args.account.should.equal(racerA)
             res.args.node.should.equal(node)
             res.args.contractAddress.should.equal(race.address)
+            filter.stopWatching()
             done()
           }
         })
@@ -507,9 +487,10 @@ contract('Race', function (accounts) {
       it('should request a beacon broadcast from the starting node, using the "startSignal" var', (done) => {
         let now = web3.eth.blockNumber
         race.getStartSignal().then(uuid => {
-          eventContract.LogBeaconBroadcastRequest({node: node}, {fromBlock: now, toBlock: now + 1}, (e, res) => {
+          let filter = eventContract.LogBeaconBroadcastRequest({node: node}, {fromBlock: now, toBlock: now + 1}, (e, res) => {
             res.args.uuid.should.equal(uuid)
             res.args.contractAddress.should.equal(race.address)
+            filter.stopWatching()
             done()
           })
           race.testBroadcastBeacon({from: racerA, gas: 3141592})
@@ -524,11 +505,12 @@ contract('Race', function (accounts) {
         let message = 'Hello'
         let expires = 30000
 
-        eventContract.LogMessagePublicationRequest(null, {fromBlock: now, toBlock: now + 1}, (e, res) => {
+        let filter = eventContract.LogMessagePublicationRequest(null, {fromBlock: now, toBlock: now + 1}, (e, res) => {
           res.args.node.should.equal(node)
           res.args.uuid.should.equal(uuid)
           res.args.message.should.equal(message)
           res.args.expires.toNumber().should.equal(expires)
+          filter.stopWatching()
           done()
         })
         // Run
@@ -712,11 +694,6 @@ contract('Race', function (accounts) {
             .then(val => false.should.be.true)
             .catch(err => err.should.be.empty)
         })
-      })
-
-      // Mocha tests are hanging for some weird reason.
-      it('should finish testing now', () => {
-        process.exit(0)
       })
     })
   })

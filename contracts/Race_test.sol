@@ -12,18 +12,42 @@ import 'Race.sol';
 contract Race_test is Race {
     // Variables for Events tests
     address authorizedClient;
+    address nodeAddr;
     bool messageDelivered;
 
     // Unit tests currently over write all the values.  
     function Race_test() {
-        var nodeAddr = address(0x579fadbb36a7b7284ef4e50bbc83f3f294e9a8ec);
-        endState = 1;
+        nodeAddr = address(0x579fadbb36a7b7284ef4e50bbc83f3f294e9a8ec);
+        endState = uint8(1);
         raceOpen = true;
         stateMap[0].node = nodeAddr;
         stateMap[1].node = nodeAddr;
     }
 
     // ------------------- TEST SETTERS ----------------------
+    function reset( address a, address b, address _eventContract_) {
+        endState = uint8(1);
+        raceOpen = true;
+        stateMap[0].node = nodeAddr;
+        stateMap[1].node = nodeAddr;
+        stateMap[0].eventContract = _eventContract_;
+        stateMap[1].eventContract = _eventContract_;
+        racers[a].state = uint8(0);
+        racers[b].state = uint8(0);
+        racers[a].timeVerified = uint64(0);
+        racers[b].timeVerified = uint64(0);
+        racers[a].verifier = address(0);
+        racers[b].verifier = address(0);
+        racers[a].endBlock = uint(0);
+        racers[b].endBlock = uint(0);
+        racers[a].authority = address(0);
+        racers[b].authority = address(0);
+        signedStartSignal.v = uint8(0);
+        signedStartSignal.r = bytes32(0);
+        signedStartSignal.s = bytes32(0);
+        messageDelivered = false;
+    }
+
     function addRacer() {
         racers[msg.sender] = Racer( 
             msg.sender, 

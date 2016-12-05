@@ -14,6 +14,10 @@ pragma solidity ^0.4.3;
 import "AnimistEvent.sol";
 
 
+/**
+ * @title Race
+ * @author Christopher Gewecke <https://github.com/cgewecke>
+ */
 contract Race {
 
     // Racer Definition
@@ -49,8 +53,6 @@ contract Race {
     address[] public racerList;               // Addr list for iter. access to the racers mapping
     
     // --------------------------------- Test Constructor   ----------------------------------------
-    // Stub: This is the section that needs to be templated per race. 
-    // Over-written in current tests.
     
     function Race() {
         var nodeAddr = address(0x579fadbb36a7b7284ef4e50bbc83f3f294e9a8ec);
@@ -67,8 +69,7 @@ contract Race {
     
     // *** Issue ***: Throw vs. return.
     // --------------- (Public: Nodes) ----------------------
-    
-    // Is this node allowed to verify presence at this step?
+          
     modifier nodeCanVerify(address client) {
         var next = racers[client].state + 1;
         if (msg.sender != stateMap[next].node) 
@@ -78,7 +79,7 @@ contract Race {
 
     // Is client registered as a racer? 
     //(Functionally redundant in combination w/ other client or sender checks. 
-    // Makes membership req. explicit for the contract reader. ) 
+    // Makes membership req. explicit for the contract reader. )
     modifier clientIsRacer(address client) {
         if (racers[client].account == address(0)) 
             throw;
@@ -256,7 +257,7 @@ contract Race {
     function submitSignedBeaconId(uint8 v, bytes32 r, bytes32 s) 
         public
         startSignalUnset()
-        canSignBeaconId()
+        canSignBeaconId() 
     {
         signedStartSignal.v = v;
         signedStartSignal.r = r;
@@ -266,8 +267,9 @@ contract Race {
     // Called by user to commit to race
     function commitSelf() 
         public
-        senderUnknown
-        contractIsOpen 
+        senderUnknown()
+        senderUnknown()
+        contractIsOpen() 
     {
         racers[msg.sender] = Racer(
             msg.sender, 
@@ -288,9 +290,9 @@ contract Race {
     // the current block number.
     function advanceSelf() 
         public
-        senderIsRacer
-        senderCanStep 
-        senderIsVerified
+        senderIsRacer()
+        senderCanStep() 
+        senderIsVerified()
     {
         racers[msg.sender].state++;
         racers[msg.sender].verifier = address(0);
@@ -307,9 +309,9 @@ contract Race {
     // will be processed in within a block.)
     function rewardSelf() 
         public
-        senderIsRacer
-        senderIsFinished
-        senderCanCheckResults
+        senderIsRacer()
+        senderIsFinished()
+        senderCanCheckResults()
     {
         if (isFirst(msg.sender)) {
             // pay self
