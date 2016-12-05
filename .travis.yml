@@ -11,7 +11,7 @@ addons:
     - g++-4.8
 script: truffle test
 before_script:
-  - npm install -g truffle
-  - npm install -g ethereumjs-testrpc
+  - npm install -g truffle@2.1.0
+  - npm install -g ethereumjs-testrpc@3.0.2
   - npm install
   - testrpc > /dev/null & 
