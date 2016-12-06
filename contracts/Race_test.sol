@@ -17,15 +17,10 @@ contract Race_test is Race {
 
     // Unit tests currently over write all the values.  
     function Race_test() {
-        nodeAddr = address(0x579fadbb36a7b7284ef4e50bbc83f3f294e9a8ec);
-        endState = uint8(1);
-        raceOpen = true;
-        stateMap[0].node = nodeAddr;
-        stateMap[1].node = nodeAddr;
     }
 
     // ------------------- TEST SETTERS ----------------------
-    function reset( address a, address b, address _eventContract_) {
+    function reset( address a, address b, address nodeAddr, address _eventContract_) {
         endState = uint8(1);
         raceOpen = true;
         stateMap[0].node = nodeAddr;

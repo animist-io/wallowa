@@ -49,7 +49,7 @@ contract('Race', function (accounts) {
   })
 
   beforeEach(() => {
-    return race.reset(racerA, racerB, eventContract.address, {from: node, gas: 3141592});
+    return race.reset(racerA, racerB, node, eventContract.address, {from: node, gas: 3141592});
   })
 
   // ------------------------------------------------------------------------------------
