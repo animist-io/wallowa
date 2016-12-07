@@ -73,6 +73,7 @@ contract AnimistEvent {
         LogPresenceVerificationRequest(node, account, contractAddress);
     }
 
+    // Comment
     function requestMessagePublication(
         address node, 
         string uuid, 
@@ -81,7 +82,7 @@ contract AnimistEvent {
         address contractAddress 
     ) 
         public 
-        payable 
+        payable
     {
         LogMessagePublicationRequest(
             node, 
@@ -92,13 +93,14 @@ contract AnimistEvent {
         );
     }
 
+    // Comment
     function requestBeaconBroadcast(
         address node, 
         string uuid, 
         address contractAddress 
     )
         public 
-        payable 
+        payable
     {
         LogBeaconBroadcastRequest(node, uuid, contractAddress);
     }

@@ -1,20 +1,15 @@
 // (In lieu of solidity syntax highlighting on GitHub)
 // vim: syntax=javascript
-
-// ---------------------------------- OVERVIEW -------------------------------------------
-//
-// This is a sample contract for a race in which contestants commit stakes to a race,
-// paying Animist nodes to authenticate their presence at pre-defined locations in set sequence. 
-// If implemented in a mobile app it would serve as a template that is filled out, compiled and 
-// deployed on a race by race basis. 
-
-// (See the README at: animist-io/wallowa for a more detailed description) 
 pragma solidity ^0.4.3;
 
 import "AnimistEvent.sol";
 
 
 /**
+ * This is a sample contract for an agreement in which contestants commit stakes to a race,
+ * paying Animist nodes to authenticate their presence at pre-defined locations in set sequence. 
+ * If implemented in a mobile app it would serve as a template that is filled out, compiled and 
+ * deployed on a race by race basis. 
  * @title Race
  * @author Christopher Gewecke <https://github.com/cgewecke>
  */
@@ -218,19 +213,6 @@ contract Race {
         return startSignal;
     }
 
-    // Return EC components of the signedStartSignal
-    function getSignedStartSignal_v() constant public returns (uint8 v) {
-        return signedStartSignal.v;
-    }
-
-    function getSignedStartSignal_r() constant public returns (bytes32 r) {
-        return signedStartSignal.r;
-    }
-
-    function getSignedStartSignal_s() constant public returns (bytes32 s) {
-        return signedStartSignal.s;
-    }
-
     // ---------------------------------------------------------------------------------------------
     // -----------------------------------  Public Methods -----------------------------------------
     // ---------------------------------------------------------------------------------------------
@@ -256,8 +238,8 @@ contract Race {
     // the `internal methods` section)
     function submitSignedBeaconId(uint8 v, bytes32 r, bytes32 s) 
         public
-        startSignalUnset()
-        canSignBeaconId() 
+        startSignalUnset
+        canSignBeaconId
     {
         signedStartSignal.v = v;
         signedStartSignal.r = r;
@@ -267,9 +249,9 @@ contract Race {
     // Called by user to commit to race
     function commitSelf() 
         public
-        senderUnknown()
-        senderUnknown()
-        contractIsOpen() 
+        senderUnknown
+        senderUnknown
+        contractIsOpen
     {
         racers[msg.sender] = Racer(
             msg.sender, 
@@ -290,9 +272,9 @@ contract Race {
     // the current block number.
     function advanceSelf() 
         public
-        senderIsRacer()
-        senderCanStep() 
-        senderIsVerified()
+        senderIsRacer
+        senderCanStep 
+        senderIsVerified
     {
         racers[msg.sender].state++;
         racers[msg.sender].verifier = address(0);
@@ -309,12 +291,13 @@ contract Race {
     // will be processed in within a block.)
     function rewardSelf() 
         public
-        senderIsRacer()
-        senderIsFinished()
-        senderCanCheckResults()
+        senderIsRacer
+        senderIsFinished
+        senderCanCheckResults
     {
         if (isFirst(msg.sender)) {
             // pay self
+            msg.sender;
         }
     }
 
@@ -322,7 +305,6 @@ contract Race {
     // -----------------------------------  Internal Methods ---------------------------------------
     // ---------------------------------------------------------------------------------------------
 
-    
     /// Returns true if `receivedStartSignal` (a string w/ form <uuid>:<major>:<minor>) is the
     /// same value as the signal signed by the starting node on broadcast. False otherwise. 
     function isValidStartSignal(string receivedStartSignal) internal returns (bool result) {
@@ -374,7 +356,7 @@ contract Race {
         uint32 expires, 
         address contractAddress_ 
     ) 
-        internal 
+        internal
     {
         var contractAddress = stateMap[0].eventContract;
         AnimistEvent node = AnimistEvent(contractAddress);

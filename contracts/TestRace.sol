@@ -9,18 +9,23 @@ import 'AnimistEvent.sol';
 import 'Race.sol';
 
 
-contract Race_test is Race {
+contract TestRace is Race {
     // Variables for Events tests
     address authorizedClient;
     address nodeAddr;
     bool messageDelivered;
 
     // Unit tests currently over write all the values.  
-    function Race_test() {
+    function TestRace() {
     }
 
-    // ------------------- TEST SETTERS ----------------------
-    function reset( address a, address b, address nodeAddr, address _eventContract_) {
+    // ---------------------------------- TEST SETTERS ---------------------------------------------
+    function reset( 
+        address a, 
+        address b, 
+        address nodeAddr, 
+        address _eventContract_
+    ) {
         endState = uint8(1);
         raceOpen = true;
         stateMap[0].node = nodeAddr;
@@ -119,7 +124,19 @@ contract Race_test is Race {
         return messageDelivered;
     }
 
-    // --------- INTERNAL FUNCTION WRAPPERS ----------------
+    function getV() constant public returns (uint8 v) {
+        return signedStartSignal.v;
+    }
+
+    function getR() constant public returns (bytes32 r) {
+        return signedStartSignal.r;
+    }
+
+    function getS() constant public returns (bytes32 s) {
+        return signedStartSignal.s;
+    }
+
+    // ---------------------------- INTERNAL FUNCTION WRAPPERS -------------------------------------
     
     function testIsFirst(address racer) constant returns (bool result) {
         return isFirst(racer);
@@ -133,13 +150,13 @@ contract Race_test is Race {
         broadcastCommit();
     }
 
-    // -------------------- MESSAGE PUBLICATION  --------------------------
+    // ------------------------------- MESSAGE PUBLICATION  ----------------------------------------
     function testPublishMessage( 
         string uuid, 
         string message, 
         uint32 duration, 
-        address contractAddress)
-    {
+        address contractAddress
+    ) {
         publishMessage(
             uuid, 
             message, 
@@ -150,7 +167,7 @@ contract Race_test is Race {
 
     function isAuthorizedToReadMessage(address visitor, string uuid) 
         constant 
-        returns (bool result) 
+        returns (bool result)
     {
         if (msg.sender == stateMap[0].node && visitor == authorizedClient)
             return true;
@@ -163,23 +180,21 @@ contract Race_test is Race {
             messageDelivered = true;
     } 
 
-    // -------------------- START SIGNAL BROADCAST --------------------------
+    // ----------------------------- START SIGNAL BROADCAST ----------------------------------------
     function testBroadcastBeacon() {
         broadcastBeacon();
     }
     
-    // ------------  MODIFIER TEST WRAPPERS -----------------
+    // ---------------------------  MODIFIER TEST WRAPPERS -----------------------------------------
     // All tests return true if fn makes it through the gate.
     // and throw otherwise.
-    
     function testNodeCanVerify(address client)
-        nodeCanVerify(client) 
+        nodeCanVerify(client)
         constant 
-        returns (bool result) 
+        returns (bool result)
     {
         return true;
     }
-
 
     function testClientCanStep(address client)
         clientCanStep(client)
@@ -197,7 +212,6 @@ contract Race_test is Race {
         return true;
     }
     
-
     function testSenderCanStep()
         senderCanStep
         constant 
@@ -206,7 +220,6 @@ contract Race_test is Race {
         return true;
     }
     
-
     function testSenderIsRacer()
         senderIsRacer
         constant 
@@ -215,7 +228,6 @@ contract Race_test is Race {
         return true;
     }
     
-
     function testSenderIsVerified()
         senderIsVerified
         constant 
@@ -224,7 +236,6 @@ contract Race_test is Race {
         return true;
     }
     
-
     function testSenderIsAuthorized()
         senderIsAuthorized
         constant 
@@ -233,7 +244,6 @@ contract Race_test is Race {
         return true;
     }
     
-
     function testSenderUnknown()
         senderUnknown
         constant 
@@ -242,7 +252,6 @@ contract Race_test is Race {
         return true;
     }
     
-
     function testSenderIsFinished()
         senderIsFinished
         constant 
@@ -251,7 +260,6 @@ contract Race_test is Race {
         return true;
     }
     
-
     function testSenderCanCheckResults()
         senderCanCheckResults
         constant 
@@ -260,7 +268,6 @@ contract Race_test is Race {
         return true;
     }
     
-
     function testContractIsOpen()
         contractIsOpen
         constant 

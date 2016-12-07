@@ -2,7 +2,7 @@
 // params that constitute the contract API for whale-island nodes.
 pragma solidity ^0.4.3;
 
- 
+
 contract AnimistAPI {
     function verifyPresence(address visitor, uint64 time) {}
     function submitSignedBeaconId(uint8 v, bytes32 r, bytes32 s) {}

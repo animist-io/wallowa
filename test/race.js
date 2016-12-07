@@ -15,8 +15,6 @@
 //   A non-throw triggers a bad assertion in the 'then' block. Chai-solidity's 'thrown'
 //   property parses the difference between VM exceptions and Mocha errors and causes
 //   the test to fail if it detects the latter.
-
-
 const Web3 = require('web3')
 let testRpc = new Web3.providers.HttpProvider('http://localhost:8545')
 const web3 = new Web3(testRpc)
@@ -39,7 +37,7 @@ contract('Race', function (accounts) {
 
   // Commit racerA & racerB to race. Get endState.
   before(() => {
-    race = Race_test.deployed()
+    race = TestRace.deployed()
     eventContract = AnimistEvent.deployed()
 
     return Promise.all([
@@ -128,9 +126,10 @@ contract('Race', function (accounts) {
       it('should assign v, r, s to the "signedStartSignal" obj', () => {
         return race.submitSignedBeaconId(sig.v, sig.r, sig.s, {from: node, gas: MAX_GAS})
           .then(val => Promise.all([
-              race.getSignedStartSignal_v(),
-              race.getSignedStartSignal_r(),
-              race.getSignedStartSignal_s() ])
+              race.getV(),
+              race.getR(),
+              race.getS() 
+          ])
           .then(([v, r, s]) => {
               v.toNumber().should.be.gt(26) // 27 or 28
               v.toNumber().should.be.lt(29)
