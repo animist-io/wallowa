@@ -122,9 +122,6 @@ contract('Race', function (accounts) {
       let signed = web3.eth.sign(node, msgHash)
       let sig = util.fromRpcSig(signed)
 
-      console.log('signed --> ' + signed);
-      console.log('msgHash --> ' + msgHash);
-
       sig.r = util.addHexPrefix(sig.r.toString('hex'))
       sig.s = util.addHexPrefix(sig.s.toString('hex'))
 
@@ -135,7 +132,8 @@ contract('Race', function (accounts) {
               race.getSignedStartSignal_r(),
               race.getSignedStartSignal_s() ])
           .then(([v, r, s]) => {
-              v.toNumber().should.equal(28)
+              v.toNumber().should.be.gt(26) // 27 or 28
+              v.toNumber().should.be.lt(29)
               util.isHexPrefixed(r).should.be.true
               util.isHexPrefixed(s).should.be.true
           }))
