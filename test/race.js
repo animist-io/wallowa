@@ -46,8 +46,8 @@ contract('Race', function (accounts) {
       race.addRacer({from: racerA, gas: MAX_GAS}),
       race.addRacer({from: racerB, gas: MAX_GAS}),
       race.endState.call(node)
-    ]).then((results) => { 
-      endState = parseInt(results[2])
+    ]).then(([ , ,state]) => { 
+      endState = parseInt(state)
     })
   })
 
@@ -438,14 +438,14 @@ contract('Race', function (accounts) {
           .then(delivered => delivered.should.be.true)))
       })
 
-      it('should NOT toggle the delivered flag if method caller is NOT node and visitor is authorizedClient', () => {
+      it('should NOT toggle the delivered flag if caller is NOT node and visitor is authorizedClient', () => {
         return race.setAuthorizedClient(racerA, {from: node, gas: MAX_GAS})
           .then(setup => race.confirmMessageDelivery(racerA, 'message', 12345, {from: racerB, gas: MAX_GAS})
           .then(confirm => race.getMessageDelivered()
           .then(delivered => delivered.should.be.false)))
       })
 
-      it('should NOT toggle the delivered flag if method caller is node and visitor is NOT authorizedClient', () => {
+      it('should NOT toggle the delivered flag if caller is node and visitor is NOT authorizedClient', () => {
          return race.setAuthorizedClient(racerA, {from: node, gas: MAX_GAS})
           .then(setup => race.confirmMessageDelivery(racerB, 'message', 12345, {from: racerB, gas: MAX_GAS})
           .then(confirm => race.getMessageDelivered()
@@ -456,9 +456,10 @@ contract('Race', function (accounts) {
     describe('broadcastCommit()', () => {
       it('should fire a registration event about racer for each node listed in the stateMap', (done) => {
         let now = web3.eth.blockNumber
+        let filterParams = {fromBlock: now, toBlock: now + 1}
 
         // Default stateMap has length 2, 'node' listed twice.
-        let filter = eventContract.LogPresenceVerificationRequest(null, {fromBlock: now, toBlock: now + 1}, (e, res) => {
+        let filter = eventContract.LogPresenceVerificationRequest(null, filterParams, (e, res) => {
           if (res.logIndex === 0) {
             res.args.account.should.equal(racerA)
             res.args.node.should.equal(node)
@@ -475,8 +476,10 @@ contract('Race', function (accounts) {
     describe('broadcastBeacon', () => {
       it('should request a beacon broadcast from the starting node, using the "startSignal" var', (done) => {
         let now = web3.eth.blockNumber
+        let filterParams = {fromBlock: now, toBlock: now + 1}
+
         race.getStartSignal().then(uuid => {
-          let filter = eventContract.LogBeaconBroadcastRequest({node: node}, {fromBlock: now, toBlock: now + 1}, (e, res) => {
+          let filter = eventContract.LogBeaconBroadcastRequest({node: node}, filterParams, (e, res) => {
             res.args.uuid.should.equal(uuid)
             res.args.contractAddress.should.equal(race.address)
             filter.stopWatching()
@@ -493,8 +496,9 @@ contract('Race', function (accounts) {
         let uuid = 'B4D5272F-D4AD-4903-A6F5-37032700EB7D'
         let message = 'Hello'
         let expires = 30000
+        let filterParams =  {fromBlock: now, toBlock: now + 1}
 
-        let filter = eventContract.LogMessagePublicationRequest(null, {fromBlock: now, toBlock: now + 1}, (e, res) => {
+        let filter = eventContract.LogMessagePublicationRequest( null, filterParams, (e, res) => {
           res.args.node.should.equal(node)
           res.args.uuid.should.equal(uuid)
           res.args.message.should.equal(message)
@@ -521,7 +525,8 @@ contract('Race', function (accounts) {
   describe('Modifiers', () => {
     describe('nodeCanVerify', () => {
       it('should pass if node is specified to auth for racers current step', () => {
-        return race.testNodeCanVerify(racerA, {from: node, gas: MAX_GAS}).then(passed => passed.should.be.true)
+        return race.testNodeCanVerify(racerA, {from: node, gas: MAX_GAS})
+          .then(passed => passed.should.be.true)
       })
 
       it('should throw if node is NOT specified to auth for racers current step', () => {
@@ -534,7 +539,8 @@ contract('Race', function (accounts) {
 
     describe('clientCanStep', () => {
       it('should pass if racers last completed step is before the final step', () => {
-        return race.testClientCanStep(racerA, {from: node, gas: MAX_GAS}).then(passed => passed.should.be.true)
+        return race.testClientCanStep(racerA, {from: node, gas: MAX_GAS})
+          .then(passed => passed.should.be.true)
       })
 
       it('should throw if racers last completed step was the final step', () => {
@@ -547,7 +553,8 @@ contract('Race', function (accounts) {
 
     describe('clientIsRacer', () => {
       it('should pass if client has committed to race', () => {
-        return race.testClientIsRacer(racerA, {from: node, gas: MAX_GAS}).then(passed => passed.should.be.true)
+        return race.testClientIsRacer(racerA, {from: node, gas: MAX_GAS})
+          .then(passed => passed.should.be.true)
       })
 
       it('should throw if client has NOT commited to race', () => {

@@ -6,8 +6,8 @@ module.exports = function(chai, util){
   Assertion.addProperty('thrown', function(){
     this.assert(
         Object.keys(this._obj).length === 0
-      , 'expected #{this} to have been thrown by solidity'
-      , 'expected #{this} not to have been thrown by solidity'
+      , 'expected "VM Exception" to have been thrown'
+      , 'did not expect #{this} to have been thrown by VM'
     )
   })
 }
