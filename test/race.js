@@ -122,6 +122,9 @@ contract('Race', function (accounts) {
       let signed = web3.eth.sign(node, msgHash)
       let sig = util.fromRpcSig(signed)
 
+      console.log('signed --> ' + signed);
+      console.log('msgHash --> ' + msgHash);
+
       sig.r = util.addHexPrefix(sig.r.toString('hex'))
       sig.s = util.addHexPrefix(sig.s.toString('hex'))
 
