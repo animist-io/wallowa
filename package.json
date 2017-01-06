@@ -44,6 +44,6 @@
   },
   "dependencies": {
     "ethereumjs-util": "^5.0.1",
-    "web3": "^0.17.0-beta"
+    "web3": "^0.18.0"
   }
 }
