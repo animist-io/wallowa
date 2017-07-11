@@ -38,7 +38,7 @@
   "homepage": "https://github.com/cgewecke/truffle-testing#readme",
   "devDependencies": {
     "chai": "^3.5.0",
-    "chai-bignumber": "^2.0.0",
+    "chai-bignumber": "^2.0.1",
     "chai-spies": "^0.7.1",
     "standard": "^8.6.0"
   },
